@@ -9,10 +9,10 @@ A folder containing the pdf and LaTeX source each paper (and sometimes the code 
 
 * In each folder, the pdf (and possibly .bib entry) are in the root. 
 
-* This is the subdirectory convention:
- * /fig
-  * /fig/src 
-  * /fig/dat
-  * /fig/pdf
- * /tex
- * /tex/sty
+* This is the directory convention:
+ * YYY_LastNames/YYYY_LastNames.pdf
+ * YYY_LastNames/fig/src (scripts to generate figures)
+ * YYY_LastNames/fig/dat (data used to generate figures)
+ * YYY_LastNames/fig/pdf (final figures)
+ * YYY_LastNames/tex (LaTeX source files)
+ * YYY_LastNames/tex/sty (any LaTeX style files used)
