@@ -11,7 +11,7 @@ A folder containing the pdf and LaTeX source each paper (and sometimes the code 
 
 * This is the subdirectory convention:
  * /fig
-  * /fig/src
+  * /fig/src 
   * /fig/dat
   * /fig/pdf
  * /tex
