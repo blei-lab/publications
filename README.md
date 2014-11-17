@@ -11,7 +11,7 @@ A folder containing the pdf and LaTeX source each paper (and sometimes the code 
 
 * This is the directory convention:
  * YYY_LastNames/YYYY_LastNames.pdf
- * YYY_LastNames/fig/src (scripts to generate figures)
+ * YYY_LastNames/fig/src (R/python scripts to generate figures)
  * YYY_LastNames/fig/dat (data used to generate figures)
  * YYY_LastNames/fig/pdf (final figures)
  * YYY_LastNames/tex (LaTeX source files)
