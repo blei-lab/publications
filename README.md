@@ -17,4 +17,4 @@ A folder containing the pdf and LaTeX source each paper (and sometimes the code 
  * YYY_LastNames/tex (LaTeX source files)
  * YYY_LastNames/tex/sty (any LaTeX style files used)
 
-* If paper includes code, make a separate repo for the code and fork it into the Blei Lab github organization. You can make your code citable and get a DOI by following this: https://guides.github.com/activities/citable-code/
+* If the paper includes code, make a separate repo for the code and fork it into the Blei Lab github organization. You can make your code citable and get a DOI by following this: https://guides.github.com/activities/citable-code/
