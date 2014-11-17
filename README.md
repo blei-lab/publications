@@ -5,7 +5,7 @@ A folder containing the pdf and LaTeX source each paper (and sometimes the code 
 
 ## Conventions
 
-Folders for each paper are labeled "YYYY_LastNames". For example, "2014_GopalanCharlinBlei".
+* Folders for each paper are labeled "YYYY_LastNames". For example, "2014_GopalanCharlinBlei".
 
-In each folder, the pdf (and possibly .bib entry) are in the root. 
+* In each folder, the pdf (and possibly .bib entry) are in the root. 
 
