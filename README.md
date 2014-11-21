@@ -14,6 +14,8 @@ So if you see a figure or LaTeX hack in a paper that you like, feel free to use 
 * In each folder, both the .pdf and .bib entry are in the root. 
 
 * This is the naming convention we use:
+ * YYYY_LastNames/README.txt (a description of the folder - if the paper is associated with
+software, such as an open-source package, it will be pointed to here)
  * YYYY_LastNames/YYYY_LastNames.pdf
  * YYYY_LastNames/YYYY_LastNames.bib
  * YYYY_LastNames/fig/src (R/python scripts to generate figures)
