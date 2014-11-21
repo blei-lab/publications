@@ -11,7 +11,7 @@ So if you see a figure or LaTeX hack in a paper that you like, feel free to use 
 
 * Folders for each paper are labeled "YYYY_LastNames". For example, "2014_GopalanCharlinBlei".
 
-* This is the naming convention we use:
+* These are the naming conventions we use:
  * YYYY_LastNames/README.txt (a description of the folder contents - if the paper is associated with
 software, such as an open-source package, it will be pointed to here and on [the main organization page](https://github.com/Blei-Lab))
  * YYYY_LastNames/YYYY_LastNames.pdf
