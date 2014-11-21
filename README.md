@@ -22,4 +22,4 @@ software, such as an open-source package, it will be pointed to here and on [the
  * YYYY_LastNames/tex (LaTeX source files)
  * YYYY_LastNames/tex/sty (any LaTeX style files used)
 
-* If the paper includes an open-source package, make a separate repo for the code and fork it into the Blei Lab github organization. You can make your code citable and get a DOI by following this: https://guides.github.com/activities/citable-code/
+* If the paper includes an open-source package, make a separate repo for the code from your account, and fork it into the Blei Lab github organization. You can make your code citable and get a DOI by following this: https://guides.github.com/activities/citable-code/
