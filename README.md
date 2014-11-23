@@ -7,19 +7,26 @@ Our aim is reproducibility: when possible, the code and data used to generate th
 
 So if you see a figure or LaTeX hack in a paper that you like, feel free to use it!
 
-## Conventions
+## Naming structure
 
-* Folders for each paper are labeled "YYYY_LastNames". For example, "2014_GopalanCharlinBlei".
+This repo contains a list of folders, with one folder for each paper. Folders are labeled "YYYY_LastNames". For example, "2014_GopalanCharlinBlei" for the "Content-based recommendation with Poisson factorization" paper in NIPS 2014 with authors
+P. Gopalan, L. Charlin, and D.M. Blei.
 
-* These are the naming conventions we use:
- * YYYY_LastNames/README.txt (a description of the folder contents - if the paper is associated with
-software, such as an open-source package, it will be pointed to here and on [the main organization page](https://github.com/Blei-Lab))
- * YYYY_LastNames/YYYY_LastNames.pdf
- * YYYY_LastNames/YYYY_LastNames.bib
- * YYYY_LastNames/fig/src (R/python scripts to generate figures)
- * YYYY_LastNames/fig/dat (data used to generate figures)
+In the root of each folder, the README.txt file contains a description of the folder contents - if the paper is associated with
+software, such as an open-source package, it will be pointed to here and on [the main organization page](https://github.com/Blei-Lab) as well as this README. 
+
+The pdf file in the root of each folder in the repo is the paper generated from the LaTeX files in /tex (using any style files in /tex/sty).
+
+Scripts for generating the figures used in the paper are in the /fig/src directory, while the data used for the figures is in /fig/dat, and the final figures used are in /fig/pdf (which might have been tweaked in Adobe Illustrator).
+
+In summary, here is the folder naming structure of each paper in this repo:
+ * YYYY_LastNames/README.txt (a description of what is in the folder)
+ * YYYY_LastNames/YYYY_LastNames.pdf (the paper)
+ * YYYY_LastNames/YYYY_LastNames.bib (bib entry for the paper)
+ * YYYY_LastNames/fig/src (Python/R scripts to make figures)
+ * YYYY_LastNames/fig/dat (data used in figures)
  * YYYY_LastNames/fig/pdf (final figures)
  * YYYY_LastNames/tex (LaTeX source files)
  * YYYY_LastNames/tex/sty (any LaTeX style files used)
 
-* If the paper includes an open-source package, make a separate repo for the code from your account, and fork it into the Blei Lab github organization. You can make your code citable and get a DOI by following this: https://guides.github.com/activities/citable-code/
+Blei Lab internal notes: If the paper includes an open-source package, make a separate repo for the code from your account, and fork it into the Blei Lab github organization. You can make your code citable and get a DOI by following this: https://guides.github.com/activities/citable-code/
