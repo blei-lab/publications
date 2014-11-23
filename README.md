@@ -1,4 +1,4 @@
-Description
+## Description
 ============
 
 This repo contains papers published in the [Blei Lab](http://www.cs.columbia.edu/~blei/). 
