@@ -1,14 +1,11 @@
 Description
 ============
 
-This repo contains the pdf and LaTeX source for papers published in the [Blei Lab](http://www.cs.columbia.edu/~blei/). 
+This repo contains papers published in the [Blei Lab](http://www.cs.columbia.edu/~blei/). 
 
 Our aim is reproducibility: when possible, the code and data used to generate the figures is included too. 
 
-## Naming structure
-
-This repo contains a list of folders, with one folder for each paper. Folders are labeled "YYYY_LastNames". For example, "2014_GopalanCharlinBlei" for the "Content-based recommendation with Poisson factorization" paper in NIPS 2014 with authors
-P. Gopalan, L. Charlin, and D.M. Blei.
+This repo contains a list of folders, with one folder for each paper. Folders are labeled "YYYY_LastNames". For example, the folder "2014_GopalanCharlinBlei" contains everything associated with the "Content-based recommendation with Poisson factorization" paper in NIPS 2014 with authors P. Gopalan, L. Charlin, and D.M. Blei.
 
 In the root of each folder, the README.txt file contains a description of the folder contents - if the paper is associated with
 software, such as an open-source package, it will be pointed to here and on [the main organization page](https://github.com/Blei-Lab) as well as this README. 
