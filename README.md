@@ -5,8 +5,6 @@ This repo contains the pdf and LaTeX source for papers published in the [Blei La
 
 Our aim is reproducibility: when possible, the code and data used to generate the figures is included too. 
 
-So if you see a figure or LaTeX hack in a paper that you like, feel free to use it!
-
 ## Naming structure
 
 This repo contains a list of folders, with one folder for each paper. Folders are labeled "YYYY_LastNames". For example, "2014_GopalanCharlinBlei" for the "Content-based recommendation with Poisson factorization" paper in NIPS 2014 with authors
