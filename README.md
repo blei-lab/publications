@@ -16,7 +16,7 @@ Scripts for generating the figures used in the paper are in the /fig/src directo
 In summary, here is the folder naming structure of each paper in this repo:
  * YYYY_LastNames/README.txt (a description of what is in the folder)
  * YYYY_LastNames/YYYY_LastNames.pdf (the paper)
- * YYYY_LastNames/YYYY_LastNames.bib (bib entry for the paper)
+ * YYYY_LastNames/YYYY_LastNames.bib (bib entry to cite the paper)
  * YYYY_LastNames/fig/src (Python/R scripts to make figures)
  * YYYY_LastNames/fig/dat (data used in figures)
  * YYYY_LastNames/fig/pdf (final figures)
