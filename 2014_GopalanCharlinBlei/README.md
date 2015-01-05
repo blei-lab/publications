@@ -24,7 +24,7 @@ approach.
 Paper
 -----
 
-2014_GopalanCharlinBlei.pdf
+[https://github.com/Blei-Lab/Publications/blob/master/2014_GopalanCharlinBlei/2014_GopalanCharlinBlei.pdf]
 
 Code
 ----
