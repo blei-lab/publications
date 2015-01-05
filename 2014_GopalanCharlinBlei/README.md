@@ -1,6 +1,5 @@
-Content-based recommendations with Poisson factorization
-
-by Prem Gopalan, Laurent Charlin, and David Blei, NIPS 2014.
+#Content-based recommendations with Poisson factorization
+##by Prem Gopalan, Laurent Charlin, and David Blei, NIPS 2014.
 
 Abstract
 --------
