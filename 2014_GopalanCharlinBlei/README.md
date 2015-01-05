@@ -38,5 +38,5 @@ Paper Source
 Source of the papers is in tex/
 
 All figures in the papers are available from fig/. The raw data used to
-generate figure that contain experimental results are in fig/dat/. They
-can be generated using the R-scripts in fig/R/.
+generate figures that contain experimental results are in fig/dat/. They
+can be generated using the R-scripts in fig/src/.
