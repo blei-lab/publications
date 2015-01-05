@@ -24,12 +24,14 @@ approach.
 Paper
 -----
 
-[https://github.com/Blei-Lab/Publications/blob/master/2014_GopalanCharlinBlei/2014_GopalanCharlinBlei.pdf]
+https://github.com/Blei-Lab/Publications/blob/master/2014_GopalanCharlinBlei/2014_GopalanCharlinBlei.pdf
+or from the conference website:
+http://papers.nips.cc/paper/5360-content-based-recommendations-with-poisson-factorization
 
 Code
 ----
 
-The C/C++ for CTPF is available here:
+The C/C++ for CTPF is available from:
 https://github.com/premgopalan/collabtm
 
 Paper Source
