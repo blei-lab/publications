@@ -41,8 +41,8 @@ https://github.com/premgopalan/collabtm
 Paper Source
 ------------
 
-Source of the papers is in tex/
+Source of the paper is in tex/
 
-All figures in the papers are available from fig/. The raw data used to
+All figures from the paper are available from fig/. The raw data used to
 generate figures that contain experimental results are in fig/dat/. They
 can be generated using the R-scripts in fig/src/.
