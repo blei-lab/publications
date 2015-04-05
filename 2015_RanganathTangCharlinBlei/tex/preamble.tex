@@ -1,0 +1,68 @@
+\usepackage{mdwlist} % for enumerate*
+\usepackage{amsmath} % do i need this? i think yes, for equation*
+\usepackage{epsfig}
+\usepackage{color}
+\usepackage{tablefootnote}
+\usepackage{wrapfig}
+
+% generously spaced lists
+\newenvironment{bigenum}
+{\begin{enumerate} \setlength{\itemsep}{10pt}}
+{\end{enumerate}}
+
+\newenvironment{bullets}
+{\begin{itemize} \setlength{\itemsep}{10pt}}
+{\end{itemize}}
+
+% references for sections etc.
+\newcommand{\mysec}[1]{Section~\ref{sec:#1}}
+\newcommand{\myapp}[1]{Appendix~\ref{app:#1}}
+\newcommand{\myeq}[1]{Equation~\ref{eq:#1}}
+\newcommand{\myeqp}[1]{Eq.~\ref{eq:#1}}
+\newcommand{\mychap}[1]{Chapter~\ref{chap:#1}}
+\newcommand{\myfig}[1]{Figure~\ref{fig:#1}}
+
+% math conveniences
+\newcommand{\g}{\,\vert\,}
+\newcommand{\E}{\textrm{E}}
+\newcommand{\vct}[1]{\textbf{#1}}
+\newcommand{\realline}{\mathbb{R}}
+\newcommand{\indpt}{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+\newcommand{\h}[1]{\textrm{H}\left( #1 \right)}
+\newcommand{\half}{\frac{1}{2}}
+%\newcommand{\new}{\textrm{new}}
+\newcommand{\mult}{\textrm{Mult}}
+\newcommand{\dir}{\textrm{Dir}}
+\newcommand{\discrete}{\textrm{Discrete}}
+\newcommand{\Bern}{\textrm{Bern}}
+\newcommand{\DP}{\textrm{DP}}
+\newcommand{\GP}{\textrm{GP}}
+\newcommand{\Bet}{\textrm{Beta}}
+\newcommand{\const}{\textrm{const.}}
+\newcommand{\pois}{\textrm{Pois}}
+
+\newcommand{\ddx}[1]{\frac{\partial}{\partial #1}}
+\newcommand{\dfdx}[2]{\textstyle \frac{\partial #1}{\partial #2}}
+
+\newcommand{\draftdisclaimer}{\begin{center}\begin{framed} DRAFT: DO
+NOT CITE OR DISTRIBUTE \end{framed}\end{center}}
+
+\newcommand{\yrep}{y^{\textrm{rep}}}
+\newcommand{\ynew}{y^{\textrm{new}}}
+\newcommand{\yobs}{y^{\textrm{obs}}}
+\newcommand{\model}{\mathcal{M}}
+\newcommand{\ppc}{\textrm{ppc}}
+\newcommand{\ideal}{\textrm{ideal}}
+\newcommand{\loglik}{\mathcal{L}}
+\newcommand{\nw}{\textrm{new}}
+\newcommand{\data}{\mathcal{D}}
+\newcommand{\cL}{{\cal L}}
+
+%\renewcommand{\paragraph}{{
+
+\newcommand{\expfam}{\textsc{expfam}}
+%\newcommand{\defbold} [1]{{\pmb #1}}
+\newcommand{\defbold}[1]{\ensuremath{\boldsymbol{\mathbf{#1}}}}
+
+\newcommand{\todo}[1]{\textcolor{red}{#1}}
