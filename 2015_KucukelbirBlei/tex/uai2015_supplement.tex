@@ -1,0 +1,246 @@
+% !TEX root = uai2015_suppl.tex
+
+\clearpage
+\glsresetall
+\section*{SUPPLEMENTARY MATERIAL}
+
+\subsection*{THE POP-EB FULL BAYES APPROXIMATION\hspace*{-20pt}}
+
+Recall the form of the \gls{POPEB} predictive density,
+\begin{linenomath}
+\begin{align*}
+  p(\xnew\mid\mbX)
+  &=
+  \int
+  p(\xnew\mid\mbZ) \; p(\mbZ\mid\mbX) \dif\mbZ.
+\end{align*}
+\end{linenomath}
+Expanding the conditional density at the end gives,
+\begin{linenomath}
+\begin{align*}
+  p(\xnew\mid\mbX)
+  &=
+  \int
+  p(\xnew\mid\mbZ)
+  \:
+  \frac{p(\mbX\mid \mbZ)\:F(\mbZ)}
+  {\int p(\mbX\mid \mbZ^\prime)\:F(\mbZ^\prime)\dif\mbZ^\prime}
+  \dif\mbZ.
+\end{align*}
+\end{linenomath}
+The plug-in principle replaces $F$ with the empirical distribution of data
+$\widehat{F}$. We then approximate the empirical distribution using the
+bootstrap by replacing $\widehat{F}$ with $\widehat{G}$. This leads to the
+approximation
+\begin{linenomath}
+\begin{align*}
+  p(\xnew\mid\mbX)
+  &\approx
+  \sum_{\mbZ}
+  p(\xnew\mid\mbZ)
+  \:
+  \frac{p(\mbX\mid \mbZ)\:\widehat{G}(\mbZ)}
+  {\sum_{\mbZ^\prime} p(\mbX\mid \mbZ^\prime)\:\widehat{G}(\mbZ^\prime)},
+\end{align*}
+\end{linenomath}
+because $\widehat{G}$ is a discrete distribution.
+
+Specifically, $\widehat{G}$ is uniform over a set of $b = 1,\ldots,B$
+bootstrapped datasets, which gives
+\begin{linenomath}
+\begin{align*}
+  p(\xnew\mid\mbX)
+  &\approx
+  \sum_{b=1}^B
+  p(\xnew\mid\mbZ^{(b)})
+  \:
+  \frac{p(\mbX\mid \mbZ^{(b)})\:\frac{1}{B}}
+  {\sum_{b=1}^B p(\mbX\mid \mbZ^{(b)})\:\frac{1}{B}}.
+\end{align*}
+\end{linenomath}
+The \gls{POPEB} \gls{FB} is then
+\begin{linenomath}
+\begin{align*}
+  p_{\textsc{fb}}(\xnew\mid\mbX)
+  &=
+  \sum_{b=1}^{B} w_b \: p(\xnew \mid \mbZ^{(i)}),
+\end{align*}
+\end{linenomath}
+with weights
+\begin{linenomath}
+\begin{align*}
+  w_b
+  &=
+  \frac{p(\mbX\mid \mbZ^{(b)})}{\sum_{b=1}^B p(\mbX\mid \mbZ^{(b)})}.
+\end{align*}
+\end{linenomath}
+
+\glsreset{FB}
+\subsection*{SIMULATION RESULTS WITH A SHARP PRIOR\hspace*{-20pt}}
+
+Consider the model from the toy example in the paper.
+If we truly believe network failures are rare, we could posit an informative
+prior density. However, this has little effect in addressing model mismatch.
+\Cref{fig:sharp_prior_gamma_poisson_multiple} shows the results of the
+same study under a very sharp prior centered at $5$, $p(\mbtheta) = \Gam
+(\alpha=500,\: \beta=100)$.
+
+The Bayesian posterior is more accurate than before; it shifts closer to the
+dominant rate of $\mbtheta=5$. This also moves the Bayesian predictive closer
+to  the population. However, both \gls{POPEB}
+\gls{MAP} and \gls{POPEB} \gls{FB} predictive densities still provide a better
+match to the true population.
+
+\begin{figure}[!htb]
+\centering
+\hspace*{1pt}
+\begin{subfigure}[b]{0.45\textwidth}
+  \input{img/sharp_prior_gamma_poisson_predictives.tex}
+  \vspace*{-16pt}
+  \caption{Predictive densities}
+  \label{subfig:sharp_prior_gamma_poisson_A}
+\end{subfigure}
+
+\vspace*{12pt}
+\begin{subfigure}[b]{0.45\textwidth}
+  \input{img/sharp_prior_gamma_poisson_posteriors.tex}
+  \vspace*{-16pt}
+  \caption{Posterior densities}
+  \label{subfig:sharp_prior_gamma_poisson_B}
+\end{subfigure}
+
+\caption{Gamma-Poisson model with a sharp prior density centered at $5$. The
+population in subpanel \textbf{(a)} has an additional small bump at $50$ (not
+shown).}
+\label{fig:sharp_prior_gamma_poisson_multiple}
+\end{figure}
+
+\glsreset{EB}
+\subsection*{SIMULATION RESULTS WITH AN EMPIRICAL BAYES PRIOR}
+
+\Gls{EB} estimates the parameters of the prior density from the
+data. For simplicity, assume the prior is a Gamma distribution. One way to
+estimate the shape $\alpha$ and rate $\beta$ parameters is to match the mean and
+variance of the Gamma distribution to that of the data.
+
+The Gamma distribution has mean $= \alpha/\beta$ and variance $= \alpha/\beta^2$.
+This leads to the following pair of equations
+\begin{linenomath}
+\begin{align*}
+  \frac{\alpha}{\beta}
+  &=
+  \text{Mean}(\mbX)
+  =
+  \frac{1}{N}\sum_{n=1}^N \mbx_n\\
+  \frac{\alpha}{\beta^2}
+  &=
+  \text{Var}(\mbX)
+  =
+  \frac{1}{N}\sum_{n=1}^N (\mbx_n - \text{Mean}(\mbX))^2.
+\end{align*}
+\end{linenomath}
+The solution is
+\begin{linenomath}
+\begin{align*}
+  \alpha
+  &=
+  \frac{[\text{Mean}(\mbX)]^2}{\text{Var}(\mbX)}
+  \text{ and }
+  \beta
+  =
+  \frac{\text{Mean}(\mbX)}{\text{Var}(\mbX)}.
+\end{align*}
+\end{linenomath}
+In our simulation study, these lead to estimates around $\alpha \approx 0.5$ and
+$\beta \approx 0.07$, which describes a nearly flat Gamma
+distribution. This does not help mitigate model mismatch, nor does it improve
+predictive accuracy.
+
+\subsection*{EFFICIENT BUMP-VI IMPLEMENTATION\hspace*{-20pt}}
+
+We first modify our Bayesian model notation to mimic
+\gls{SVI} \citep{hoffman2013stochastic}.
+Consider a Bayesian model $p(\mbX,\mbtheta)$. Separate the
+latent variables $\mbtheta$ into a set of local $\mbzeta$ and
+global $\mbbeta$ variables. Local latent variables $\mbzeta = \{\mbzeta_n\}_1^N$
+grow with the number of observations; global latent variables $\mbbeta$ do not.
+The likelihood becomes $p(\mb{X} \mid \mbzeta, \mbbeta)$ and the prior
+$p(\mbzeta, \mbbeta)$.
+
+Given the global variables $\mbbeta$, the local latent variable $\mbzeta_n$,
+along with its observation $\mbx_n$, is conditionally independent of
+all other latent variables and observations
+\begin{linenomath}
+\begin{align*}
+  p(\mbx_n,\mbzeta_n \mid \mbx_{-n},\mbzeta_{-n}, \mbbeta)
+  &=
+  p(\mbx_n,\mbzeta_n \mid \mbbeta).
+\end{align*}
+\end{linenomath}
+The negative indexing notation means $\mbx_{-n} = \{\mbx_i \mid i = 1,\dots,
+n-1, n+1,\dots, N \}$. Global latent variables lack such
+conditional independence.
+
+This divide is natural in many models. For example, consider
+\gls{LDA}. The global latent variables are the topics.
+(The number of topics is fixed and does not vary with the number of documents.)
+The local latent variables are the per-document topic distributions and
+the per-word assignments. (There are as many of these variables as documents
+and words within each document.)
+
+The local-global separation simplifies the computation of the $B$ gradients
+in \gls{BUMPVI}. The variational family
+has two sets of variational parameters
+$q(\mbzeta, \mbbeta \,;\, \mbphi, \mblambda)$
+where $\mbphi$ indexes the local variables and $\mblambda$ the global ones. This
+also splits the variational parameters in the \gls{ELBO} as $\cL(\mbX,
+\mbphi, \mblambda)$.
+
+\citet{hoffman2013stochastic} show that the gradient calculation decomposes into
+a maximization of the local variables and a gradient with respect to the
+global variables. The recipe at each iteration is
+\begin{linenomath}
+\begin{align*}
+  \mbphi_{\dagger}
+  &\leftarrow
+  \argmax_{\mbphi} \cL (\mbX,\mbphi,\mblambda_\text{prev}) \\
+  \mb{g}_{\mblambda}
+  &\leftarrow
+  \nabla_{\mblambda} \cL (\mbX, \mbphi_{\dagger},\mblambda) \\
+  \mblambda_\text{next}
+  &\leftarrow
+  \mblambda_\text{prev} + \rho \mb{g}_{\mblambda}.
+\end{align*}
+\end{linenomath}
+where $\rho$ is a scalar step-size.
+
+In \gls{SVI}, we subsample the dataset $\mbX$ and accordingly re-weight the
+optimized local variables to construct an unbiased estimate of
+$\mb{g}_{\mblambda}$.
+Exponential family models parameterized in their natural forms enjoy a
+connection to their coordinate ascent updates, but the idea holds in general
+\citep{hoffman2013stochastic}.
+
+In \gls{BUMPVI}, we need $B$ gradients of the \gls{ELBO} evaluated on the
+bootstrapped datasets $\{\mbZ^{(b)}\}_1^B$. Luckily, subsampling is conceptually
+equivalent to bootstrap resampling: they both induce a weighting scheme on
+the local latent variables.
+
+We propose the following efficient implementation. At each iteration:
+\begin{enumerate}
+  \item Compute the optimized local variables $\mbphi_\dagger$ \emph{once} for
+  the original dataset.
+  \item Compute the form of $\nabla_{\mblambda} \cL$.
+  \item Generate the $B$ gradients $\{\mb{g}_{\mblambda}^{(b)}\}_1^B$ by
+  re-weighting the local variables according to the bootstrapped datasets
+  $\{\mbZ^{(b)}\}_1^B$. This means weighting each local variable proportional
+  to the number of times its paired observation appears in the bootstrapped
+  dataset.
+\end{enumerate}
+
+We implement this stragey in the accompany code:
+\url{https://github.com/Blei-Lab/lda-bump-cpp}.
+
+% Our implementation of \gls{BUMPVI} in \gls{LDA} employs this strategy. This is
+% why it performs faster than our \gls{GMM} code in \Cref{tab:timing_results}.
+% (We have not implemented this efficient version for \gls{GMM}, yet.)

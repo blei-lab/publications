@@ -1,0 +1,121 @@
+% !TEX root = uai2015.tex
+
+\glsresetall{}
+\section{INTRODUCTION}
+
+Bayesian modeling is a powerful framework for analyzing
+structured data. It covers many important
+methods in probabilistic machine learning, such as regression, mixture
+models, hidden Markov models, and probabilistic topic
+models~\citep{bishop2006pattern,murphy2012machine}.  Bayesian models
+provide an intuitive language to express assumptions about data, as well as
+general-purpose algorithms (such as variational methods) to
+reason under those assumptions.
+
+Bayesian models describe data $\mbX$ as a structured probability
+density with latent variables $\mbtheta$,
+$p(\mbX, \mbtheta) =  p(\mbX \mid \mbtheta) p(\mbtheta).$
+The first term is the likelihood, the second is the prior.  We use
+this joint density to both analyze data and form predictions.  We
+analyze data through the posterior density of the latent
+variables, $p(\mbtheta \mid \mbX)$.  This conditional density
+derives from the joint.  We form predictions by combining the
+likelihood and posterior density as
+\begin{linenomath}
+\begin{align}
+  p(\xnew \mid \mbX) = \int p(\xnew \mid \mbtheta)
+  p(\mbtheta \mid \mbX)
+  \dif \mbtheta.
+  \label{eq:bayes_predictive}
+\end{align}
+\end{linenomath}
+This is the Bayesian predictive density, the conditional
+density of a new observation given the dataset.
+
+Frequentist statistics take a different perspective. Here we analyze a set of
+observations $\mbX$ to draw conclusions
+about the mechanism $F$ that gave rise to them. $F(\mbX)$ is an unknown
+distribution; it is called the \emph{population}.
+Nonparametric frequentist methods, like the
+bootstrap~\citep{efron1994introduction}, work
+directly with $F$ while still respecting its unknown nature.  This
+leads to powerful tools that work well across many statistical
+settings.  One goal is to use a given dataset to learn about $F$ and
+predict new observations; this is predictive inference
+\citep{young2005essentials}.
+
+\parhead{Main idea.} We combine the flexibility of Bayesian
+modeling with the robustness of nonparametric frequentist statistics.
+The issue is that Bayesian theory, under frequentist
+scrutiny, assumes the model is correct~\citep{bernardo2000bayesian}.
+But this is rarely true; the model is almost always mismatched, which
+can lead to brittle data analysis and poor predictions.
+Our goal is to use the unknown population $F$ to improve a
+Bayesian model's predictive performance.
+
+We call our framework \gls{POPEB}. It describes a simple procedure.
+The input is a model $p(\mbX,\mbtheta)$ and a dataset $\mbX$ of
+$N$ observations. For example, a mixture of Gaussians and a dataset of natural
+images.
+\begin{enumerate}
+\item Draw $B$ bootstrap samples of the dataset,
+  $\LEFTRIGHT\lcbrace\rcbrace{\mbX^{(1)}, \cdots, \mbX^{(B)}}$.
+  Each sample is a dataset of
+  size $N$, drawn with replacement from the original
+  dataset~\citep{efron1994introduction}.
+\item Compute the posterior for each bootstrapped dataset,
+  $p\PARENS{\mbtheta \mid \mbX^{(b)}}$.  Evaluate the average predictive
+  accuracy of the original dataset with \Cref{eq:bayes_predictive}.
+\item Pick the bootstrapped dataset $\mbX^{(b^*)}$ that best predicts
+  the original dataset.  Use the corresponding predictive density
+  $p\PARENS{\xnew \mid \mbX^{(b^*)}}$ to form future predictions.
+\end{enumerate}
+
+\gls{POPEB} applies to any Bayesian model and can
+improve its predictive performance.  Above we describe its
+simplest form.  Alternatives, which we discuss below, include one that
+weights the bootstrapped datasets and another that embeds the population
+into a stochastic variational inference
+algorithm~\citep{hoffman2013stochastic}.
+
+In this paper, we develop, motivate, and study \gls{POPEB}.
+We show that it yields a predictive density
+that incorporates the unknown population distribution $F$ in a type of
+empirical Bayes model~\citep{robbins1955empirical,robbins1964empirical}.
+Compared to traditional Bayesian inference, it
+better predicts held-out data for models such as regression
+(\Cref{tab:blr}), mixtures of Gaussians
+(\Cref{fig:gmm_sweep}), and probabilistic topic models
+(\Cref{fig:lda_sweep}).
+
+\parhead{Related work.}
+There are several running themes in this paper.  The first is
+Bayesian/frequentist compromise and empirical Bayes.  A rich
+literature relates Bayesian and frequentist ideas.
+\citet{bayarri2004interplay} and \citet{aitkin2010statistical} give
+thorough reviews.  One thread of ideas around combining these two
+schools of thought is
+\gls{EB}~\citep{robbins1955empirical,morris1983parametric,carlin2000bayes}.
+Loosely, \gls{EB} uses frequentist statistics to
+estimate prior specifications in Bayesian models.  \gls{EB} enjoys
+good statistical properties~\citep{efron2010large}; it can explain
+challenging concepts, such as the James-Stein paradox
+\citep{berger1985statistical}.
+
+The second theme is predictive inference.  One approach to Bayesian
+inference is to study the Bayesian predictive density. The goal is to
+design models such that the predictive density is high for new
+observations~\citep{geisser1993predictive}. Machine learning also
+strives to develop models that deliver high predictive accuracy
+\citep{bishop2006pattern}.  Our method explicitly optimizes the
+Bayesian predictive density.
+
+A final theme is model misspecification.  To
+paraphrase~\citet{box1987empirical}, the challenge of Bayesian
+statistics is that while many models are useful, all of them are wrong.
+Robust statistics offer some remedies~\citep{berger1994overview},
+such as using likelihoods and priors that are ``insensitive to small
+deviations from the assumptions''~\citep{huber2009robust}. Our work
+uses empirical Bayes to induce a model that is robust to
+misspecification.
+

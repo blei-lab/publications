@@ -1,0 +1,236 @@
+% !TEX root = uai2015.tex
+
+\glsreset{POPEB}
+\section{POPULATION EMPIRICAL BAYES\hspace*{-20pt}}
+
+\Gls{POPEB} incorporates the model-independent population $F$ into Bayesian
+analysis. We first develop the structure of our framework and then discuss the
+motivation behind it in \Cref{sub:remarks}.
+
+\subsection{EMPIRICAL BAYES}
+
+Let $\mbX = \{\mb{x}_n\}_1^N$ be a dataset with $N$ observations. The dataset
+is a sample from an unknown population distribution $F$.
+The population is the ``true'' distribution of the data; it is independent of
+any model \citep{shao2003mathematical}.
+
+A Bayesian model has two parts. The first is the likelihood,
+$p(\mbx_n \mid \mbtheta)$. It relates an observation $\mbx_n$
+to a set of latent random variables $\mbtheta$. If the observations are
+independent and identically distributed, the likelihood of the dataset becomes
+$p(\mbX \mid \mbtheta) = \prod_{n=1}^N p(\mbx_n \mid \mbtheta)$.
+
+The second is the prior density, $p(\mbtheta)$.
+This induces the joint density $p(\mbX, \mbtheta) = p(\mbX \mid
+\mbtheta) \: p(\mbtheta)$. In predictive inference, we additionally consider a
+new observation $\xnew$. It shares the same likelihood of the data,
+$p(\xnew\mid\mbtheta)$. This expands the joint density to $p
+(\xnew,\mbX,\mbtheta)$,
+shown in \Cref{fig:bayes_predictive}.
+
+A predictive density describes $\xnew$ given the observed dataset
+$\mbX$. A simple recipe supplies such a density: condition on the observations
+and marginalize over the latent variables. This gives the Bayesian predictive
+density in \Cref{eq:bayes_predictive}. It depends on the Bayesian posterior density,
+\begin{linenomath}
+\begin{align}
+  p(\mbtheta \mid \mbX)
+  &=
+  \frac{p(\mbX \mid \mbtheta)
+  \:
+  p(\mbtheta)}
+  {\int p(\mbX \mid \mbtheta^\prime)\:p(\mbtheta^\prime) \dif\mbtheta^\prime},
+  \label{eq:post}
+\end{align}
+\end{linenomath}
+which describes how the latent variables $\mbtheta$ vary conditioned on
+a given dataset $\mbX$.
+
+\begin{figure}[tb]
+\centering
+\input{img/classical_bayes_predictive.tex}
+\caption{Graphical model for Bayesian predictive inference.
+The likelihood relates the dataset $\mbX = \{\mb{x}_n\}_1^N$,
+along with the new observation $\xnew$, to the latent variables $\mbtheta$.
+Conditioning on the observations and marginalizing over $\mbtheta$ gives the
+Bayesian predictive density of \Cref{eq:bayes_predictive}.}
+\label{fig:bayes_predictive}
+\end{figure}
+
+\glsreset{EB}
+The main idea behind \Gls{EB} is to build estimates from the population into
+Bayesian inference \citep{robbins1955empirical,morris1983parametric}.
+\gls{EB} uses the observed data to estimate parts of a Bayesian model. There are
+many variants of \gls{EB}. \citet{robbins1955empirical} proposed the following
+approach.
+
+First, augment the model such that each observation $\mbx_n$ gets
+its own set of latent variables $\mbtheta_n$. This is sometimes called the
+``compound sampling model'' \citep{berger1985statistical}.
+It has connections to robust inference \citep{berger1986robust} through an
+intuitive justification.\footnote{When pondering outliers in Bayesian
+inference, de Finetti explains: ``We know that
+each observation is taken using an instrument with [some] error, but each time
+chosen at random from a collection of instruments of different precisions
+'' \citep{deFinetti1961bayesian}}
+Then, assume the latent variables
+are exchangeable and distributed according to an unknown prior density $g$.
+\Cref{fig:empirical_bayes} shows the \gls{EB} framework.
+
+``Nonparametric \gls{EB}'' estimates the prior $g$ using nonparametric
+statistics of the data \citep{robbins1955empirical,robbins1964empirical}. The
+name emphasizes its model-independent approach.  ``Parametric \gls{EB}''
+assumes a parametric family for $g$ and estimates its parameters from the data
+\citep{morris1983parametric}.
+The result is a hierarchical Bayesian model whose top-level
+parameters are determined by the observations. The name emphasizes its
+ model-based approach.
+
+Both variants of \gls{EB} introduce population information from the
+dataset $\mbX$. But neither directly builds the population
+$F$ into the analysis. How can we adapt \gls{EB} to directly model the
+population distribution of data?
+
+
+\begin{figure}[tb]
+\centering
+\input{img/empirical_bayes_predictive.tex}
+\glsreset{EB}
+\caption{Graphical model for \gls{EB} predictive inference. We augment the
+Bayesian model and estimate the prior $g$ from the dataset.}
+\label{fig:empirical_bayes}
+\end{figure}
+
+\subsection{POPULATION EMPIRICAL BAYES}
+
+We take a two-step approach. We first introduce an additional latent variable
+into \gls{EB} and then use it to define a conditional density on $\mbtheta$.
+
+The new variable $\mbZ$ is a latent dataset. This is a hypothetical dataset
+that we do not observe. It has the same size and dimension as the observed
+dataset $\mbX$, but with unknown observations. It lives one level above the
+$\mbtheta$ variables.
+
+Given the latent dataset, we then define a conditional density on $\mbtheta$. We
+choose a density that depends on the latent dataset, $p(\mbtheta\mid\mbZ)$.
+\Cref{fig:peb_predictive} shows the framework.
+
+This is a valid \gls{EB} model; we simply propose a conditional density on
+$\mbtheta$ via a new latent variable $\mbZ$. However, it is incomplete. We must
+also choose a prior on $\mbZ$ and then define the form of $p(\mbtheta\mid\mbZ)$.
+
+We set the prior on the latent dataset $\mbZ$ to be the
+population $F$. The unknown, model-independent distribution of data acts as the
+prior on the latent dataset $\mbZ$.
+
+We match the conditional density on $\mbtheta$ to the Bayesian
+posterior density of the original Bayesian model. Instead of conditioning on the
+observed dataset $\mbX$, we condition on the latent dataset $\mbZ$. This is how
+we interface the frequentist population distribution with the Bayesian model.
+
+This fully describes the \gls{POPEB} framework. (We motivate these choices in
+\Cref{sub:remarks}.)
+
+\parhead{Definition.}
+\gls{POPEB} defines the joint density
+\begin{linenomath}
+\begin{align}
+  p(\xnew,\thetanew,\mbX,\mb\theta,\mbZ)
+    &=
+    p(\xnew \mid \thetanew) \: p(\thetanew \mid \mbZ)\nonumber\\
+    &\times
+    \prod_{n=1}^Np(\mbx_n \mid \mbtheta_n) \: p(\mbtheta_n \mid \mbZ)\nonumber\\
+    &\times F(\mbZ).\label{eq:peb_joint}
+\end{align}
+\end{linenomath}
+To obtain a predictive density from the joint density, we follow the same
+recipe as before: condition on the observations $\mbX$ and marginalize over the
+latent variables.
+
+\begin{figure}[tb]
+\centering
+\input{img/peb_predictive.tex}
+\glsreset{POPEB}
+\caption{Graphical model for the \gls{POPEB} framework. We introduce $\mbZ$,
+the latent dataset, and assign the population distribution $F$ as its prior.}
+\label{fig:peb_predictive}
+\end{figure}
+
+Marginalizing over $\mbtheta$ is straightforward. In addition, we marginalize
+over the latent dataset $\mbZ$, which gives the predictive density
+\begin{linenomath}
+\begin{align}
+  p(\xnew \mid \mbX)
+  &=
+  \int p(\xnew \mid \mbZ) \: p(\mbZ\mid\mbX)
+  \dif\mbZ.
+  \label{eq:peb_predictive}
+\end{align}
+\end{linenomath}
+This is the \gls{POPEB} predictive density. It integrates the Bayesian
+predictive density over the latent dataset $\mbZ$ using the conditional density
+\begin{linenomath}
+\begin{align}
+  p(\mbZ \mid \mbX)
+  &=
+  \frac{p(\mbX\mid \mbZ)\:F(\mbZ)}
+  {\int p(\mbX\mid \mbZ^\prime)\:F(\mbZ^\prime) \dif\mbZ^\prime}.
+  \label{eq:posterior_X}
+\end{align}
+\end{linenomath}
+This is a key conditional density in \gls{POPEB}. It describes how the
+latent dataset varies given the observed dataset. The original Bayesian model
+prescribes the form of $p(\mbX\mid\mbZ$) and the population $F(\mbZ)$ factors in
+as the prior.
+
+Thus, \gls{POPEB} directly incorporates the
+population $F$ as a prior on the latent dataset. But the population is, by
+definition, unknown. We address this next.
+
+\parhead{Plug-in principle.}
+The empirical population $\what F$ is the distribution that
+puts weight $1/N$ on each observation in the observed dataset $
+\{\mb{x}_n\}_1^N$. The plug-in estimator of a function of $F$ is simply the same
+function evaluated with $\what F$ instead.
+In the absence of any other information about the population, the plug-in
+principle is
+asymptotically efficient \citep{efron1994introduction}.
+
+The plug-in principle provides a nonparametric estimate of $F$. It enjoys a
+tight connection to the bootstrap and related techniques.
+We discuss computation in greater detail in
+\Cref{sec:computation}. But now, we owe the reader an explanation.
+
+
+\subsection{MOTIVATION}
+\label{sub:remarks}
+
+Here is the story so far. The population $F$ is the model-independent mechanism
+that generates $\mbX$. Bayesian analysis employs a model $p(\mbX,\mbtheta)$. The
+model
+is helpful; it gives strength to the statistical analysis \citep{young2005essentials}.
+However, Bayesian theory assumes the model is
+correct.\footnote{\citet{bernardo2000bayesian} identify this as the
+$\mathcal{M}$-closed view.}\break This is not always true; the model is
+often misspecified.\hspace*{-10pt}
+
+We focus on predictive inference. Our goal is to help a Bayesian model provide
+the best predictive accuracy, in spite of model misspecification.  So, we seek a
+way to incorporate the model-independent population $F$ into our model-based
+Bayesian analysis.
+
+This is why we set $F$ as the prior on the latent dataset $\mbZ$. In
+principle, there is no obstacle in using any other prior density. The prior on
+$\mbZ$
+captures knowledge about the data generating mechanism that might otherwise be
+difficult to express in the model. In our case, this knowledge is precisely the
+population distribution $F$.
+
+Consistency motivates our design of the conditional density on $\mbtheta$.
+Any density that depends on $\mbZ$ would be valid. We choose
+the Bayesian posterior density to mimic the original Bayesian model.
+Consider the Bayesian predictive density from \Cref{eq:bayes_predictive}. It
+integrates the likelihood over the posterior density of the latent variables.
+The \gls{POPEB} predictive density of \Cref{eq:peb_predictive} mirrors this
+form by integrating the Bayesian predictive density over the posterior density
+of the latent dataset.

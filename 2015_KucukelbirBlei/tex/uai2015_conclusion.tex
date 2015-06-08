@@ -1,0 +1,39 @@
+% !TEX root = uai2015.tex
+
+\section{CONCLUSION}
+\label{sec:conclusion}
+
+Mismatched models exhibit poor predictive performance. The \gls{POPEB} predictive
+density mitigates this effect by incorporating the population $F$ into
+Bayesian analysis. The \gls{POPEB} \gls{MAP} predictive density is attractively
+simple; it explores the space of bootstrapped dataset to find the one with
+highest predictive power. \gls{BUMPVI} extends this idea to variational
+inference; it delivers an efficient algorithm with promising results on
+real-world datasets.
+
+\gls{POPEB}, like \gls{EB}, uses the dataset twice:
+once to estimate the prior and again during inference. There are alternatives to
+consider, such as cross-validation and bias correction
+\citep{Efron:1997,gelman2013understanding}.
+Directly modeling the expected predictive performance of future data should also
+improve \gls{POPEB}.
+
+\begin{table}[!htb]
+\caption{Coordinate ascent \gls{LDA} topics ($K=8$).}
+\label{tab:coordinate_ascent}
+\begin{center}
+{\fontsize{8pt}{8pt}\selectfont
+\input{tab/lda_coord_ascent.tex}
+}
+\end{center}
+\end{table}
+
+\begin{table}[!hbt]
+\caption{\gls{BUMPVI} \gls{LDA} topics ($K=8$).}
+\label{tab:bumping}
+\begin{center}
+{\fontsize{8pt}{8pt}\selectfont
+\input{tab/lda_bumping.tex}
+}
+\end{center}
+\end{table}

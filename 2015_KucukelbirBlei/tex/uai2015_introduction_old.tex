@@ -1,0 +1,103 @@
+% !TEX root = uai2015.tex
+
+\section{OLD INTRODUCTION}
+
+In statistical inference, we analyze a set of random variable
+observations to draw conclusions about the mechanism that gave rise to
+them. The dataset $\mbX$ contains the observations. The mechanism is
+unknown; we call it the \emph{population} $F$. One goal is to predict
+new observations through analysis of a given dataset.  This is
+predictive inference.
+
+A Bayesian takes the following approach. She posits a likelihood that
+describes her data using a set of latent variables $\mbtheta$. She
+establishes a prior density over the latent variables. This defines
+the model; she hopes it can explain the population. She computes the
+posterior density of the latent variables by conditioning on the
+observed dataset $p(\mbtheta\mid\mbX)$.  The posterior factors into
+the Bayesian predictive density $p(\xnew\mid\mbX)$, which she
+evaluates on a new observation.
+
+Bayesian theory assumes the model is correct
+\citep{bernardo2000bayesian}.  This is actually never true; the model
+is always mismatched.\footnote{In the spirit of ``essentially, all
+  models are wrong, but some are useful'' \citep{box1987empirical}.}
+How can we use the population $F$ to improve a Bayesian model's
+predictive performance?
+
+\parhead{Main idea.}
+We directly build the population into empirical Bayesian analysis.
+The result is a simple four-step procedure: 1) draw a few bootstrap
+samples of the dataset, 2) compute the posterior density for each
+bootstrapped dataset, 3) evaluate the average predictive accuracy on
+the original dataset, and 4) pick the bootstrapped dataset that
+performs best on the original dataset. This yields a predictive
+density that incorporates the population distribution $F$ through
+bootstrapped datasets.  We observe improved predictive performance
+over classical Bayes on held-out data for a variety of models, such as
+regression (\Cref{tab:blr}), mixture (\Cref{fig:gmm_sweep}), and
+mixed-membership (\Cref{fig:lda_sweep}) models.
+
+First, we develop \gls{POPEB}. We begin with empirical Bayes, which
+estimates a prior density on the latent variables from the dataset. We
+then depart from this framework by introducing a latent dataset into
+the model and setting the population as its prior. Marginalizing over
+all latent variables gives the \gls{POPEB} predictive density.
+
+Second, we estimate the population using the plug-in principle
+\citep{efron1994introduction}. We replace the unknown population $F$
+with the empirical distribution of the data $\widehat{F}$. The
+bootstrap gives samples from $\widehat{F}$, which we use to estimate
+\gls{MAP} and Bayesian versions of the \gls{POPEB} predictive
+density. We show that the \gls{MAP}\break estimation case, described
+in the main idea above, leads to a bumping procedure
+\citep{tibshirani1999model}.
+
+Last, we extend this idea to tackle complicated models, such as a
+Bayesian mixture model and latent Dirichlet allocation. We develop an
+efficient variational inference method, called \gls{BUMPVI}. Empirical
+results on clustering natural images and modeling topics in a
+scientific text corpus demonstrate uniformly improved predictive
+accuracy over classical variational inference
+(\Cref{fig:gmm_sweep,fig:clusters,fig:lda_sweep,fig:sensitivity} and
+\Cref{tab:coordinate_ascent,tab:bumping}).
+
+\parhead{Related work.}
+There are four running themes in this paper. Predictive inference is
+the first.  In Bayesian inference, we study the Bayesian predictive
+density \citep{geisser1993predictive}. The predictive density should
+be high for new observations. Machine learning strives to develop
+models and algorithms that deliver high predictive accuracy
+\citep{bishop2006pattern}.
+
+Model misspecification motivates this work. Robust statistics offer some
+remedies \citep{berger1994overview}. Some involve employing
+likelihood and prior densities that are ``insensitive to small deviations
+from the assumptions'' \citep{huber2009robust}. Others take a control theoretic
+approach \citep{hansen2008robustness}. Model comparison techniques offer another
+remedy. Bayes factors and information criteria compare
+candidate models \citep{vehtari2012survey,gelman2013bayesian}. We do not
+consider multiple models; instead, we seek to mitigate mismatch of a
+single model.
+
+\Gls{EB} is the foundation we build on.
+\citet{robbins1955empirical,robbins1964empirical} established
+the following approach to \gls{EB}.
+First, augment the Bayesian model by introducing a new layer of latent random
+variables. Then, estimate the parameters of the new variables using
+observed data. \gls{EB} enjoys good frequentist and Bayesian properties
+\citep{carlin2000bayes,efron2010large}; it is a powerful framework that
+explains challenging concepts, such as the James-Stein paradox
+\citep{young2005essentials}.
+
+The last theme is Bayesian/frequentist compromise.
+A rich literature relates frequentist and Bayesian ideas.
+\citet{bayarri2004interplay} and \citet{aitkin2010statistical} give thorough
+reviews.
+There is little prior work that studies predictive
+inference with the population. An exception is
+\citet{gelman2013understanding} who investigate bias in Bayesian model
+comparison. To that end,
+they analyze the Bayesian predictive density under the population expectation of
+\emph{new} observations; in contrast, we study the population of the
+\emph{given} dataset.

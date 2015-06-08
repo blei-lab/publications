@@ -1,0 +1,207 @@
+% !TEX root = uai2015.tex
+
+\section{POPULATION EMPIRICAL VARIATIONAL INFERENCE}
+
+Modern Bayesian statistics and machine learning has moved well past
+simple conjugate models like Bayesian linear regression. In
+complex models, such as Bayesian mixture
+models \citep{bishop2006pattern} or probabilistic topic models
+\citep{blei2003latent}, the posterior and predictive densities are intractable
+to compute. Monte Carlo sampling and variational techniques are two popular
+frameworks for approximation.
+
+In this section, we develop an efficient  variational
+approximation to the \gls{POPEB} \gls{MAP} predictive density.
+
+\subsection{VARIATIONAL INFERENCE}
+
+Variational inference is an optimization-based approach to
+approximate posterior computation in a Bayesian model $p(\mbX,\mbtheta)$
+\citep{jordan1999introduction, wainwright2008graphical}.
+The idea is to posit a simple parameterized density family
+over the latent variables, $q(\mbtheta \,;\, \mblambda)$. We then seek the
+member of the family that is closest in \gls{KL} divergence to the true
+posterior density $p (\mbtheta\mid\mbX)$.
+Minimizing \KL{q}{p} is equivalent to maximizing a lower bound
+on the marginal density of the data. This gives a
+variational objective function, called the \gls{ELBO}
+\begin{linenomath}
+\begin{align*}
+  \cL(\mbX, \mblambda)
+  &=
+  \E_q
+  \left[
+    \log p(\mbX,\mbtheta)
+  \right]
+  -
+  \E_q
+  \left[
+    \log q(\mbtheta \,;\, \mblambda)
+  \right].
+\end{align*}
+\end{linenomath}
+Variational inference maximizes this objective function with respect to the set
+of parameters $\mblambda$.
+
+In mean-field variational inference, we assume the variational
+density fully factorizes. This divides the variational parameters into $M$
+parts,
+$\mblambda = \{\mblambda_m\}_1^M$. We then maximize the \gls{ELBO}
+using coordinate ascent \citep{jordan1999introduction}.
+This means iteratively maximizing one variational
+parameter at a time, holding all others fixed.
+The separation of latent variables leads to independent updates for each
+variational parameter.
+This coordinate ascent scheme guarantees convergence to a local
+maximum of the \gls{ELBO} \citep{bishop2006pattern}.
+
+\subsection{APPROXIMATING THE POP-EB MAP PREDICTIVE DENSITY}
+\label{sub:bound}
+
+Our aim is to employ variational inference to approximate
+the \gls{POPEB} \gls{MAP} predictive density. It shares the same
+form as the Bayesian predictive density, but integrates over the Bayesian
+posterior density evaluated on a particular bootstrapped dataset.
+To that end, consider the \gls{ELBO} evaluated on a
+bootstrapped dataset, $\cL(\mbZ^{(b)}, \mblambda)$.
+
+The variational objective becomes
+a joint optimization of the variational parameters and the bootstrap index
+\begin{linenomath}
+\begin{align*}
+  &\mblambda_\dagger^{(b^*)}
+  =
+  \argmax_{\mblambda}
+  \cL(\mbZ^{(b^*)}, \mblambda)\\
+  &b^*
+  =
+  \argmax_{b}
+  \prod_{n=1}^N
+  \int
+  p(\mbx_n \mid \mbtheta_n)
+  \:
+  q\PARENS{\mbtheta_n \,;\,\mblambda_\dagger^{(b)}}
+  \dif\mbtheta_n.
+\end{align*}
+\end{linenomath}
+The two optimization problems are coupled: the first seeks the best
+approximation to the Bayesian posterior density while the second seeks the
+latent dataset index that gives the highest predictive accuracy. The variational
+density $q (\mbtheta \,;\,\mblambda_\dagger^{ (b^*)})$ is the closest
+\gls {KL}
+approximation to the Bayesian posterior density
+inside the \gls{POPEB} \gls{MAP} predictive
+density of \Cref{eq:popeb_map_predictive}.
+
+The na\"{i}ve way to solve the joint optimization above is to adapt
+our earlier technique from \Cref{sub:map_approx}.
+Bootstrap the dataset $B$ times, maximize the \gls{ELBO}
+for each dataset, and choose the one that gives the best predictive
+performance. This is a costly procedure.
+It requires multiple maximizations of the \gls{ELBO}, which we wish to avoid.
+
+
+\subsection{BUMPING VARIATIONAL INFERENCE}
+\glsreset{BUMPVI}
+
+We propose a stochastic optimization algorithm that maximizes the
+\gls{ELBO} once. We weave bumping into each iteration of the
+optimization. We call this method \gls{BUMPVI} (\Cref{alg:bump-vi}).
+At a high level, the algorithm works as follows.
+%\footnote{(To reviewers:we will release this code upon publication.)}
+
+Consider a single iteration. We bootstrap
+the dataset $B$ times. For each bootstrapped dataset, we
+compute a gradient $\mb{g}_{\mblambda}^{(b)}$ in the parameters
+$\mblambda$. These gradients are noisy estimates of the ``true''
+gradient, had we taken the na\"{i}ve approach above and determined which
+bootstrapped dataset
+$\mbZ^{(b^*)}$ led to the best predictive performance. The cost of
+computing $B$ gradients is small in many Bayesian models. (The
+supplement describes an efficient implementation.)
+
+Then, we employ the bumping procedure from \Cref{sub:map_approx}.
+This means taking a step in the parameters for each
+bootstrapped dataset and evaluating the Bayesian predictive density on the
+original dataset.
+This evaluation is the main added cost of \gls{BUMPVI} over classical
+variational methods.
+We pick the index $b^{(*)}$ that gives the highest predictive performance and
+take a step in the direction it indexes.
+
+\gls{BUMPVI} is a stochastic optimization method; the step-size sequence matters
+for establishing convergence guarantees \citep{robbins1951stochastic}. We use a
+constant step-size as it isolates the performance of the algorithm
+from any sequence-related effects and provides quantifiable error bounds
+\citep{nemirovski2009robust}. Code is available at
+\url{https://github.com/Blei-Lab/lda-bump-cpp}.
+
+\begin{algorithm}[!tb]
+  \caption{Bumping Variational Inference}
+  \SetAlgoLined
+  \DontPrintSemicolon
+  \BlankLine\BlankLine
+  \KwIn{%
+  % Dataset \mbX,
+  Model $p(\mbX, \mbtheta)$,
+  variational family
+  $q(\mbtheta \,;\, \mblambda)$}
+  \KwResult{%
+  Optimized
+  $q(\mbtheta \,;\, \mblambda_\dagger^{(b^*)})$
+  approximation}
+  \BlankLine
+  Choose the number of bootstraps $B$\;
+  Choose a step-size sequence $\{ \rho_{(i)} \}_1^\infty$\;
+  Initialize parameters $\mblambda_{(0)}$, iteration $i = 0$\;
+  \BlankLine
+  \While{$\|\mblambda_{(i+1)}-\mblambda_{(i)}\|$ is above some threshold}{
+    \BlankLine
+      \For{$b = 1$ \KwTo $B$}{
+      Draw a bootstrap sample $\mbZ^{(b)} \sim \what{G}$\;
+      \BlankLine
+      Calculate gradient of parameters $\mblambda$\;
+      \Indp
+      $\mb{g}_{\mblambda}^{(b)}
+      \longleftarrow
+      \nabla_{\mblambda}
+      \cL \big( \mbZ^{(b)}, \mblambda \big)$\;
+      \Indm
+      \BlankLine
+      }
+    Choose the bootstrap index that maximizes
+    the Bayesian predictive density on the dataset\;
+    \Indp
+    $b^*
+    \longleftarrow
+    \argmax_{b}
+    \prod_{n=1}^N
+    \int
+    p(\mbx_n \mid \mbtheta_n)\break
+    \hspace*{106pt}
+    q(\mbtheta_n \,;\,\mblambda_{(i)} + \rho_{(i)} \mb{g}_{\mblambda}^{
+    (b)})\break
+    \hspace*{105pt}
+    \dif\mbtheta_n$\;
+    \Indm
+    \BlankLine
+    Take a step in direction indexed by $b^*$\;
+    \Indp
+    $\mblambda_{(i+1)}
+    \longleftarrow
+    \mblambda_{(i)} + \rho_{(i)} \mb{g}_{\mblambda}^{(b^*)}$\;
+    \Indm
+    \BlankLine
+    Update iteration counter\;
+    \Indp
+    $i \longleftarrow i + 1$\;
+    \Indm
+    \BlankLine
+  }
+  Return variational parameters\;
+  \Indp
+  $\mblambda_\dagger^{(b^*)} \longleftarrow \mblambda_{(i+1)}$\;
+  \Indm
+  \BlankLine
+  \label{alg:bump-vi}
+\end{algorithm}

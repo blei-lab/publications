@@ -1,0 +1,187 @@
+% !TEX root = uai2015.tex
+
+\glsreset{LDA}
+\section{EMPIRICAL STUDY}
+\label{sec:empirical}
+
+We apply \gls{BUMPVI} to two complex tasks: Bayesian mixture modeling of
+image histograms and \gls{LDA} topic modeling of a scientific text corpus. We
+compare \gls{BUMPVI} to coordinate
+ascent variational inference. In both examples, \gls{BUMPVI} uniformly reaches
+higher predictive accuracy. We first present both sets of results and then
+discuss performance.
+
+\subsection{BAYESIAN MIXTURE MODEL}
+
+Consider a \gls{GMM} with a Gaussian-Gamma prior on the mixture component
+means and precisions, and a
+Dirichlet prior on the proportions. These are conditionally conjugate priors
+that lead to
+straightforward coordinate ascent update equations \citep{bishop2006pattern}.
+
+The image\textsc{clef} dataset has $576$-dimensional color histograms of natural
+images \citep{Villegas13_CLEF}. We randomly select $5\,000$ images as our
+dataset and choose another $1\,000$ images for predictive accuracy tests. We
+standardize the mean and variance of the set of histograms. Thus,
+the hyperparameters for
+the Gaussian-Gamma prior are zero on the component means and one on the
+precisions. The hyperparameter on the Dirichlet
+is $1/K$ where $K$ is the number of components.
+We set the number of bootstrap samples to $B=10$ and the step-size
+to $\rho = 0.1$.
+
+We compare coordinate ascent to
+\gls{BUMPVI} across a range of components. \Cref{fig:gmm_sweep} displays these
+results. \gls{BUMPVI} attains
+a higher average log predictive evaluated on the held-out
+set. We run each algorithm ten times per configuration to account for random initialization of the initial parameters. Both algorithms converge in
+fewer than $75$ iterations.
+
+\begin{figure}[tb]
+\centering
+\input{img/gmm_sweep.tex}
+\vspace*{-10pt}
+\caption{Average log-predictive density of $1\,000$ held-out images.
+\gls{BUMPVI} (\textcolor{cb_orange}{orange}) reaches a higher predictive
+accuracy than coordinate ascent (\textcolor{cb_green}{green}) across a
+range of configurations. Boxplots show the median, quartiles,
+and $1.5$ interquartile range of ten repeats per configuration.}
+\label{fig:gmm_sweep}
+\end{figure}
+
+
+\Cref{fig:clusters} presents the effect of reaching higher predictive accuracy.
+We assign each image to its most probable mixture
+component and pick the one with ``blue-purple'' images.
+Though this is a subjective matter, the \gls{BUMPVI} component
+appears more uniform than its counterpart.
+The coordinate ascent component seems to have red-toned
+images that might belong in a different component.
+
+\begin{figure}[tb]
+\centering
+\begin{subfigure}[b]{0.23\textwidth} %0.23\textwidth
+  \includegraphics[width=\textwidth]{img/vbca_cluster29.jpg}
+  \caption{Coordinate ascent}
+  \label{subfig:vbca}
+\end{subfigure}%
+\quad
+% \vspace*{12pt}
+\begin{subfigure}[b]{0.23\textwidth}
+  \includegraphics[width=\textwidth]{img/bumping_cluster2.jpg}
+  \caption{\gls{BUMPVI}}
+  \label{subfig:bumping}
+\end{subfigure}
+% \vspace*{-10pt}
+\caption{The ``blue-purple'' \gls{GMM} ($K=40$)  coordinate ascent component
+has some extraneous images. The bumping component is
+qualitatively more uniform.}
+\label{fig:clusters}
+\end{figure}
+
+
+\begin{figure}[tb]
+\centering
+\input{img/lda_sweep_variable_alpha.tex}
+\vspace*{-12pt}
+\caption{Average per-word log-predictive density of $1\,000$ held-out
+abstracts.
+\gls{BUMPVI} (\textcolor{cb_orange}{orange}) reaches a higher predictive
+accuracy than coordinate ascent (\textcolor{cb_green}{green}) across a
+range of model configurations.}
+\label{fig:lda_sweep}
+\end{figure}
+
+
+\subsection{LATENT DIRICHLET ALLOCATION}
+
+We study \gls{LDA} with a corpus of $5\,000$
+randomly selected abstracts from the arXiv repository. The abstracts are short
+($\sim$$150$ words) and the vocabulary is large ($\sim$$12\,000$ unique words).
+The arXiv exhibits jargon-heavy abstracts, which leads to a large
+vocabulary. This makes for a challenging dataset; because of the vocabulary
+size, we only expect to identify a few topics in a corpus of size $5\,000$.
+
+\gls{LDA} has two Dirichlet priors. We set the hyperparameter on the topics
+distributions to be $1/K$ where $K$ is the number of topics. The hyperparameter
+on the topics is $0.005$, which is approximately $60/V$ where $V$ is
+the vocabulary size. We set the number of bootstrap samples to
+$B=10$ and the step-size to $\rho = 0.05$.
+%We empirically choose a smaller
+%step-size to contend with the high-dimensional vocabulary space.
+
+We study \gls{BUMPVI} across a range of topics.
+\Cref{fig:lda_sweep} plots a comparison to coordinate ascent.
+\gls{BUMPVI} attains a higher average per-word log predictive
+evaluated on the held-out set. \Cref{tab:coordinate_ascent,tab:bumping} show
+how this difference affects the topics. While six of the topics are
+similar, \gls{BUMPVI} finds two topics with higher predictive power.
+As with mixture components, examining topics is a subjective activity.
+Both algorithms converged in fewer than $150$ iterations.
+
+\subsection{MITIGATING MODEL MISMATCH}
+
+There is no reason to believe that natural images are
+truly distributed as a mixture of Gaussians. The same holds for
+the ``bag of words'' assumption that underlies \gls{LDA}. With real data,
+there is always some level of inherent model mismatch. \gls{BUMPVI} attempts
+to mitigates this effect.
+
+The performance gap widens with the number of components.
+We might expect a simpler model to be more severely
+mismatched. This demonstrates that \gls{POPEB} cannot rectify
+the choice of an inappropriate model. For example, two topics are simply too few
+to accurately model our arXiv corpus; both algorithms do poorly.
+However, with twelve topics, coordinate ascent does even worse.
+This may be due to other effects, such as local maxima in the variational
+objective function \citep{wainwright2008graphical}.
+
+Does \gls{BUMPVI} outperform classical techniques because it reaches a better
+local maximum of the \gls{ELBO}? The answer is no. Evaluating the \gls{ELBO} on
+the observed dataset gives similar numerical values for both methods. (In
+our experiments, coordinate ascent usually reaches a slightly higher number
+than \gls{BUMPVI}.) This is not surprising, as
+\gls{BUMPVI} solves a different optimization problem than coordinate ascent
+variational inference; it approximates the \gls{POPEB} \gls{MAP}
+predictive density instead of the Bayesian predictive density.
+
+\begin{figure}[tb]
+\centering
+\input{img/sensitivity.tex}
+\vspace*{-12pt}
+\caption{\gls{BUMPVI} sensitivity study with the \gls{GMM} ($K=40$) model.
+Average log-predictive density of $1\,000$ held-out images, over ten repeats.}
+\label{fig:sensitivity}
+\end{figure}
+
+\subsection{SENSITIVITY TO BOOTSTRAP SAMPLES AND COMPUTATIONAL COST}
+
+We also study the sensitivity of \gls{BUMPVI} to the number of bootstrap
+samples $B$ (\Cref{fig:sensitivity}).
+\cite{tibshirani1999model} recommend using $20$-$30$ bootstrap
+samples for bumping, but as few as five appear to perform well. This is
+because \gls{BUMPVI}, in a loose sense, re-samples the dataset
+$B$ times the number of iterations. For completeness, we also compare the case
+of $B=1$. This is equivalent to \gls{SVI} with ``minibatch'' size equal to $N$
+\citep{hoffman2013stochastic}. This shows that the performance gain in
+\gls{BUMPVI} is not due to stochastic escapes from local maxima. (Though,
+it likely benefits from it.)
+
+The \gls{POPEB} framework incurs a computational cost proportional to
+the choice of $B$. \gls{BUMPVI} reduces this cost in two ways. The first
+is due to the iterative resampling effect mentioned above. The second is due to
+an efficient calculation of the $B$ gradients at each iteration.
+(See supplementary note.) \Cref{tab:timing_results} shows that \gls{BUMPVI} is
+less than $B$ times the cost of coordinate ascent variational inference.
+
+\begin{table}[tb]
+\caption{Runtime ratios of \gls{BUMPVI} compared to coordinate ascent. An
+efficient re-weighting strategy gives ratios that are less than $B$. (See
+supplementary note.) }
+\label{tab:timing_results}
+\begin{center}
+{
+\input{tab/timing_table.tex}
+}
+\end{center}
+\end{table}

@@ -1,0 +1,290 @@
+% !TEX root = uai2015.tex
+
+\section{COMPUTATION}
+\label{sec:computation}
+
+We describe two empirical approximations to the \gls{POPEB} predictive density,
+develop some insight through simulation, and study a linear regression model
+with real data. More results follow in the empirical study of
+\Cref{sec:empirical}.
+
+\subsection{BOOTSTRAP}
+
+The plug-in principle replaces the population $F$ with its
+empirical counterpart $\what F$.
+However, direct computation with $\what F$ is also challenging.
+The \gls{POPEB} predictive density requires evaluating $p(\mbZ\mid\mbX)$. This
+involves considering all possible datasets in the support of $\what F$, an
+intractable task.
+
+The bootstrap is a computational technique for approximating functions of
+$\what F$. Define the bootstrapped dataset as
+$\mbZ^{(b)} = \{ \mb{x}^{(b)}_n \}_1^N$
+where each $\mb{x}^{(b)}_n$ is uniformly sampled from $\what F$ \emph{with}
+replacement. The bootstrapped dataset $\mbZ^{(b)}$ contains as many
+observations as $\mbX$; some observations appear multiple times, others not at
+all.
+
+All boostrapped datasets are equally likely. So we can approximate
+calculations of $\what F$ with a uniform distribution.
+Call this distribution $\what G$; it is a discrete uniform distribution
+over the $B$ bootstrapped datasets $ \{ \mbZ^{(b)} \}_1^B$.
+This reduces the space of possible datasets to $\mathcal{O}(B)$.
+%Naturally, accuracy increases with $B$ \citep{efron1994introduction}.
+
+% Even so, the
+% \gls{POPEB} predictive density of \Cref{eq:peb_predictive} is still intractable to
+% compute because of the marginal density in the denominator of
+% \Cref{eq:posterior_X}. We require additional approximation.
+
+\glsreset{MAP}
+\subsection{MAP APPROXIMATION}
+\label{sub:map_approx}
+
+A simple way to approximate the \gls{POPEB} predictive density is
+\gls{MAP} estimation.
+In our setup, we find the most likely latent dataset $\mbZ^*$ from
+$p(\mbZ\mid\mbX)$ and plug it into the Bayesian predictive density.
+
+The \gls{POPEB} \gls{MAP} predictive density is simply
+\begin{linenomath}
+\begin{align*}
+  p_\textsc{map}(\xnew \mid \mbX)
+  &=
+  p\PARENS{\xnew \mid \mbZ^*},
+\end{align*}
+\end{linenomath}
+where the most likely dataset is
+\begin{linenomath}
+\begin{align*}
+  \mbZ^*
+  &= \argmax_{\mbZ} p(\mbZ \mid \mbX)\\
+  &= \argmax_{\mbZ} p(\mbX\mid \mbZ)\: \what F(\mbZ).
+\end{align*}
+\end{linenomath}
+\gls{MAP} estimation evades the intractable denominator in
+\Cref{eq:posterior_X}, as the maximization only depends on $\mbZ$.
+However, the maximization is still intractable, so we replace $\what F$ with
+$\what G$ to get
+\begin{linenomath}
+\begin{align*}
+  \mbZ^{(b^*)}
+  &\approx
+  \argmax_{\mbZ^{(b)} \,\in\; \what G}
+  p\PARENS{\mbX \mid \mbZ^{(b)}}.
+\end{align*}
+\end{linenomath}
+This turns out to be a special case of the bumping technique
+\citep{tibshirani1999model}.
+Bumping is a bootstrap-based method to fit arbitrary models to a dataset; it
+finds the fit
+that minimizes some metric over bootstrapped datasets. Our metric is the
+average predictive density evaluated on the original dataset. Evaluating the
+metric on the original dataset guards against overfitting; it includes both
+held-in and held-out samples.
+
+Enumeration spells the procedure out:
+\begin{enumerate}
+  \item Draw $B$ bootstrapped datasets.
+        This gives a set of datasets
+        $\{\mbZ^{(b)}\}_1^B \sim \what G $.%
+        \footnote{\cite{tibshirani1999model} recommend including the
+        observed dataset. We follow their advice.}
+  \item For each bootstrap index $b=1,\cdots,B$:\\
+  Compute and evaluate the Bayesian predictive density on the original dataset
+    \begin{linenomath}
+    \begin{align*}
+      p\PARENS{\mbX \mid\mbZ^{(b)}}
+      &=
+      \prod_{n=1}^N
+      p\PARENS{\mbx_n \mid\mbZ^{(b)}}.
+    \end{align*}
+    \end{linenomath}
+  \item Return the bootstrap index $b^*$ that maximizes the
+  Bayesian predictive density above.
+\end{enumerate}
+
+We approximate the \gls{POPEB} \gls{MAP} predictive density as\hspace*{-10pt}
+\begin{linenomath}
+\begin{align}
+  p_{\textsc{map}}(\xnew\mid\mbX)
+  &\approx
+  \int
+  p\PARENS{\xnew \mid \thetanew}
+  \:
+  p\PARENS{\thetanew \mid \mbZ^{(b^*)}}
+  \dif\thetanew.
+  \label{eq:popeb_map_predictive}
+\end{align}
+\end{linenomath}
+It has the same form as the Bayesian predictive density, but integrates over
+the Bayesian posterior conditioned on the bootstrapped dataset $\mbZ^{(b^*)}$.
+
+\subsection{FULL BAYESIAN APPROXIMATION}
+\label{sub:weighted}
+
+We also consider directly evaluating the \gls{POPEB} predictive density of
+\Cref{eq:peb_predictive}. In general, the posterior $p(\mbZ\mid\mbX)$ is
+intractable. Luckily, replacing $\what F$ with $\what G$ reduces the
+integral to a finite sum over $B$. We call this a \gls{FB} approximation, as
+it is an exact evaluation of the \gls{POPEB} predictive density under the
+$\what G$ approximation of the empirical population. (The supplement
+contains a derivation.)
+
+The \gls{POPEB} \gls{FB} predictive density is a weighted sum,
+\begin{linenomath}
+\begin{align*}
+  p_{\textsc{fb}}(\xnew\mid\mbX)
+  &=
+  \sum_{b=1}^{B} w_b \: p\PARENS{\xnew \mid \mbZ^{(b)}},
+\end{align*}
+\end{linenomath}
+where the weights are
+\begin{linenomath}
+\begin{align*}
+  w_b
+  &=
+  \frac{p(\mbX\mid\mbZ^{(b)})\:\what{G}(\mbZ^{(b)})}
+  {\sum_b p(\mbX\mid\mbZ^{(b)})\:\what{G}(\mbZ^{(b)})}
+  = \frac{p(\mbX\mid \mbZ^{(b)})}{\sum_b p(\mbX\mid \mbZ^{(b)})},
+\end{align*}
+\end{linenomath}
+and the $\mbZ^{(b)}$ and drawn from $\what{G}$. The probabilities
+$\what{G}(\mbZ^{(b)})$ are all equal to $1/B$, and so they disappear. As with
+the \gls{MAP} case, the intractable denominator from \Cref{eq:posterior_X}
+also drops out of the calculation.
+
+
+\subsection{SIMULATION STUDY}
+\label{sub:simulation}
+
+To investigate these \gls{POPEB} quantities, we construct a toy example of
+model mismatch. The example is intentionally simple; it provides insight
+into why and how \gls{POPEB} mitigates model misspecification.
+
+Consider that we typically observe data from a Poisson distribution
+with rate $\mbtheta = 5$.
+(For instance, a router receives packets over a network;
+the wait-times are the measurements.)
+We model the data using a Poisson likelihood
+$p(\mbx \mid \mbtheta) = \text{Poisson}(\mbtheta)$,
+and center a Gamma prior at $\mbtheta=5$ as $p(\mbtheta) = \Gam
+(\alpha=2.5,\:
+\beta=0.5)$.
+
+Imagine that five percent of the time, the network fails. During these
+failures, the wait-times come from a different Poisson with
+rate $\mbtheta = 50$. The population describes a mixture
+of two Poisson distributions. But the single Poisson model likelihood does not.
+A good predictive density should accurately describe the population.
+
+\Cref{subfig:gamma_poisson_A} shows the predictive densities.
+The Bayesian predictive
+density exhibits poor predictive accuracy; it describes neither
+of the two Poisson distributions in the population. In contrast, both
+\gls{POPEB} predictive densities match the dominant Poisson distribution.
+\gls{POPEB} uses the empirical population to focus on the observations in the
+dataset that give it greater predictive power.
+
+\Cref{subfig:gamma_poisson_B} shows the underlying posterior densities on
+the latent variable $\mbtheta$ that describes the wait-time. For \gls{POPEB}
+\gls{MAP}
+this is the posterior density $p(\mbtheta\mid\mbZ^{(b^*)})$; a single
+Gamma distribution that, when put through the Bayesian predictive density,
+gives the highest accuracy. For the \gls{POPEB} \gls{FB} case, the posterior is
+a weighted
+sum of Gamma distributions. Both \gls{POPEB} posterior densities sit closer
+to the dominant rate of $\mbtheta=5$. This explains the behavior of the
+\gls{POPEB} predictive densities in \Cref{subfig:gamma_poisson_A}.
+
+The \gls{POPEB} \gls{MAP} predictive density is easy to compute;
+it is a negative binomial distribution, like the Bayesian predictive density.
+In contrast, the \gls{POPEB} \gls{FB} predictive density must be numerically
+calculated using all bootstrap samples; it has no simple analytic form.
+
+We generate these plots using $B=100$ bootstrapped datasets. The exact shape of
+the \gls{POPEB} densities depend on the bootstrapped datasets, but
+they are reproducibly closer to $\mbtheta=5$.
+The results are also insensitive to different prior configurations, such as
+a sharp prior centered at $\mbtheta=5$. \gls{EB} is also of little
+use here; it estimates a nearly flat prior on $\mbtheta$ from the data.
+(See supplementary note and code.)
+
+% This example points to an important peril of a na\"{i}ve application of
+% Bayesian inference, even in simple scenarios.
+% The situation becomes worse in high dimensions, where model mismatch is
+% difficult to detect and has strong effects on predictive inference
+% \citep{hastie2009elements}.
+
+\begin{figure}[tb]
+\centering
+\hspace*{1pt}
+\begin{subfigure}[b]{0.45\textwidth}
+  \input{img/gamma_poisson_predictives.tex}
+  \vspace*{-16pt}
+  \caption{Predictive densities}
+  \label{subfig:gamma_poisson_A}
+\end{subfigure}
+
+\vspace*{12pt}
+\begin{subfigure}[b]{0.45\textwidth}
+  \input{img/gamma_poisson_posteriors.tex}
+  \vspace*{-16pt}
+  \caption{Posterior densities}
+  \label{subfig:gamma_poisson_B}
+\end{subfigure}
+
+\caption{Gamma-Poisson simulation. The population in subpanel \textbf{(a)} has
+an small extra bump at $50$ (not shown).}
+\vspace*{-10pt}
+\label{fig:gamma_poisson_multiple}
+\end{figure}
+
+
+\subsection{BAYESIAN LINEAR REGRESSION}
+
+We now apply the \gls{POPEB} framework to a real-world
+dataset. Consider a Bayesian linear regression model. The likelihood is
+a Gaussian distribution and the latent random variables are the regression
+coefficients $\mbbeta$ and the variance $\sigma^2$. Using conjugate
+priors (Gaussian for the coefficients and inverse Gamma for the variance)
+gives a Bayesian predictive density that follows a t-distribution
+\citep{murphy2012machine}.
+We posit an uninformative prior.
+
+We study the predictive performance of both \gls{POPEB} predictive densities on
+the \texttt{bodyfat} dataset \citep{bodyfat}. Accurate measurements of body fat
+are costly. The dataset contains the body fat percentages of $N=252$ men along
+with $14$ other features that are cheaper to measure. We want to predict
+body fat percentage using these $14$ features.
+
+We randomly extract datasets of $200$ measurements and hold the
+remaining $52$ to evaluate predictive accuracy. \Cref{tab:blr} reports
+the average logarithm of the predictive densities (logp), along with \gls{MSE}
+and
+\gls{MAE}. In all cases, the \gls{POPEB} predictive densities reach higher
+predictive accuracy on held-out data. The \gls{POPEB} \gls{FB} density
+performs similarly to the \gls{POPEB} \gls{MAP} density, but exhibits
+slightly better \gls{MSE} and \gls{MAE} values.
+Since the dataset is small, we split it six times.
+These results are reproducible across a variety of splits.
+We use $B=25$ bootstrap samples. (See supplementary
+code.)
+
+\begin{table}[t]
+\caption{Bayesian linear regression predictive accuracy results on
+random held-out splits of the \texttt{bodyfat} dataset.}
+\label{tab:blr}
+\begin{center}
+{\fontsize{8pt}{9pt}\selectfont
+\input{tab/blr_table.tex}
+}
+\end{center}
+\end{table}
+
+The \gls{POPEB} \gls{FB} density is a better approximation to the \gls{POPEB}
+predictive density than its \gls{MAP} counterpart. The results in \Cref{tab:blr}
+corroborate this. However, \gls{POPEB} \gls{FB} density lack an analytic form.
+In contrast, the \gls{POPEB} \gls{MAP} predictive density offers an attractive
+improvement in predictive accuracy while maintaining the form of the Bayesian
+predictive density. We now turn to approximating it for complex Bayesian models.
