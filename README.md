@@ -6,11 +6,8 @@ Our aim is reproducibility: when possible, the code and data used to generate th
 
 This repo contains a list of folders, with one folder for each paper. Folders are labeled `YYYY_LastNames/`. For example, the folder `2014_GopalanCharlinBlei/` contains everything associated with the "Content-based recommendation with Poisson factorization" paper in NIPS 2014 with authors P. Gopalan, L. Charlin, and D.M. Blei.
 
-In the root of each folder, the `README.md` contains a description of the folder contents - if the paper is associated with
-software, such as an open-source package, it will be pointed to here and on [the main organization page](https://github.com/Blei-Lab) as well as this README. 
-
 Here is the directory structure for each paper:
- * `YYYY_LastNames/README.md`: a description of what is in the folder
+ * `YYYY_LastNames/README.md`: a brief description and a link to any associated software
  * `YYYY_LastNames/YYYY_LastNames.pdf`: the paper
  * `YYYY_LastNames/YYYY_LastNames.bib`: bib entry to cite the paper
  * `YYYY_LastNames/fig/src`: Python/R scripts to make figures
