@@ -1,0 +1,81 @@
+\documentclass[usenames,dvipsnames]{article}
+\usepackage{nips15submit_e,times}
+
+\input{preamble/preamble.tex}
+\input{preamble/preamble_acronyms.tex}
+\input{preamble/preamble_math.tex}
+\input{preamble/preamble_tikz.tex}
+
+\setlength{\marginparwidth}{1in} % for margins for sidenotes
+\usepackage{setspace}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{assumption}[theorem]{Assumption}
+
+\title{Copula variational inference}
+
+\author{
+Dustin Tran\\
+Harvard University\\
+%\texttt{dtran@g.harvard.edu} \\
+\And
+David M. Blei \\
+Columbia University \\
+%\texttt{blei@cs.columbia.edu} \\
+\And
+Edoardo M. Airoldi  \\
+Harvard University \\
+%\texttt{airoldi@fas.harvard.edu} \\
+}
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\nipsfinalcopy
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+  We develop a general variational inference method that preserves
+  dependency among the latent variables. Our method uses copulas to
+  augment the families of distributions used in mean-field and
+  structured approximations. Copulas model the dependency that is not
+  captured by the original variational distribution, and thus the
+  augmented variational family guarantees better approximations to the
+  posterior. With stochastic optimization, inference on the augmented
+  distribution is scalable. Furthermore, our strategy is generic: it
+  can be applied to any inference procedure that currently uses the
+  mean-field or structured approach.
+  Copula variational inference has many advantages: it reduces bias;
+  it is less sensitive to local optima; it is less sensitive to
+  hyperparameters; and it helps characterize and interpret the
+  dependency among the latent variables.
+\end{abstract}
+
+\input{sec_introduction.tex}
+\input{sec_background.tex}
+\input{sec_cvi.tex}
+\input{sec_experiments.tex}
+\input{sec_conclusion.tex}
+
+\subsubsection*{Acknowledgments}
+We thank Luke Bornn, Robin Gong, and Alp Kucukelbir for their
+insightful comments.
+This work is supported by NSF IIS-0745520, IIS-1247664, IIS-1009542,
+ONR N00014-11-1-0651, DARPA FA8750-14-2-0009, N66001-15-C-4032,
+Facebook, Adobe, Amazon, and the John Templeton Foundation.
+
+\bibliographystyle{apalike}
+\small
+\bibliography{nips2015}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,47 @@
+% Compile this with "xelatex". Then run
+% pdfcrop vine_copula.pdf vine_copula.pdf
+\documentclass[crop,tikz]{standalone}
+
+\usepackage[english]{babel}
+\usepackage{amsmath, amssymb, amsthm, enumerate}
+\usepackage{xcolor}
+\usepackage{pstricks,pst-node,pst-tree}
+\definecolor{seagreen}{rgb}{0.18, 0.55, 0.34}
+\usepackage{bm}
+\usetikzlibrary{arrows,positioning}
+
+\title{}
+\author{}
+
+\begin{document}
+
+\footnotesize
+\begin{align}
+\psmatrix[colsep=2cm,rowsep=0.5cm,mnode= oval]
+{1}&{3}&{2}\\
+&&{4}
+\ncline{1,1}{1,2}^{\textcolor{red}{1,3}}
+\ncline{1,2}{1,3}^{\textcolor{red}{2,3}}
+\ncline{1,2}{2,3}_{\textcolor{red}{3,4}}
+\endpsmatrix
+\tag{$T_1$}
+\end{align}
+
+\begin{align}
+\psmatrix[colsep=1.8cm,rowsep=0.5cm,mnode= oval]
+\textcolor{red}{2,3} &\textcolor{red}{1,3}&\textcolor{red}{3,4}
+\ncline{1,1}{1,2}^{\textcolor{blue}{1,2|3}}
+\ncline{1,2}{1,3}^{\textcolor{blue}{1,4|3}}
+\endpsmatrix
+\tag{$T_2$}
+\end{align}
+
+\begin{align}
+\psmatrix[colsep=1.8cm,rowsep=1.5cm,mnode=oval]
+\textcolor{blue}{1,2|3}&\textcolor{blue}{1,4|3}
+\ncline{1,1}{1,2}^{\textcolor{seagreen}{2,4|13}}
+\endpsmatrix
+\tag{$T_3$}
+\end{align}
+
+\end{document}

@@ -1,0 +1,258 @@
+\section{Copula variational inference}
+\label{sec:copula}
+
+We now introduce \glsreset{CVI}\emph{\gls{CVI}}, our method for
+performing accurate and scalable variational inference. For
+simplicity, consider the mean-field factorization augmented with a
+copula (we later extend to structured factorizations). The copula-augmented variational family is
+\begin{equation}
+q(\mbz;\mblambda,\mbeta) = \underbrace{\left[\prod_{i=1}^d
+q(\mbz_i;\mblambda)\right]}_{\text{mean-field}}
+\underbrace{c(Q(\mbz_1;\mblambda),\ldots,Q(\mbz_d;\mblambda);
+\mbeta)}_{\text{copula}},
+\label{eq:copula_variational}
+\end{equation}
+where $\mblambda$ denotes the mean-field parameters and $\mbeta$ the
+copula parameters. With this family, we maximize the augmented \gls{ELBO},
+\begin{equation*}
+  \mathcal{L}\left(\mblambda,\mbeta\right)
+  = \mathbb{E}_{q(\mbz;\mblambda,\mbeta)}[\log p(\mbx,\mbz)] - \mathbb{E}_{q(\mbz;\mblambda,\mbeta)}[\log
+  q(\mbz;\mblambda,\mbeta)].
+\end{equation*}
+\Gls{CVI} alternates between two steps: 1) fix the copula parameters
+$\mbeta$ and solve for the mean-field parameters $\mblambda$; and 2)
+fix the mean-field parameters $\mblambda$ and solve for the copula
+parameters $\mbeta$. This generalizes the mean-field approximation,
+which is the special case of initializing the copula to be uniform and
+stopping after the first step. We apply stochastic approximations~\citep{robbins1951stochastic} for each step with
+gradients derived in the next section. We set the learning rate
+$\rho_t\in\mathbb{R}$ to satisfy a Robbins-Monro
+schedule, i.e.,
+$\sum_{t=1}^\infty\rho_t=\infty,~\sum_{t=1}^\infty\rho_t^2<\infty$.
+A summary is outlined in \myalg{cvi}.
+
+This alternating set of optimizations falls in the class of
+minorize-maximization methods, which includes many procedures such as
+the EM algorithm~\citep{dempster1777maximum}, the alternating least
+squares algorithm, and the iterative procedure for the generalized
+method of moments.
+%method of moments~\citep{hansen1996finite}.
+Each step of \gls{CVI}
+monotonically increases the objective function and therefore better
+approximates the posterior distribution.
+
+\begin{algorithm}[t]
+  \setstretch{0.1}
+  \caption{\Acrfull{CVI}}
+  \SetAlgoLined
+  \DontPrintSemicolon
+  \BlankLine
+  \KwIn{Data $\mbx$, Model $p(\mbx,\mbz)$, Variational family $q$.}
+  \BlankLine
+  Initialize $\mblambda$ randomly, $\mbeta$ so that $c$ is uniform.\;
+  \BlankLine
+  \While{change in \gls{ELBO} is above some threshold}{
+    \BlankLine
+    // Fix $\mbeta$, maximize over $\mblambda$.\\[0.9ex]
+    %\BlankLine
+    Set iteration counter $t = 1$.
+    \BlankLine
+    \While{not converged}{
+      \BlankLine
+      Draw sample $\mbu\sim \operatorname{Unif}([0,1]^d)$.
+      \BlankLine
+      Update
+      $\mblambda = \mblambda + \rho_t \nabla_{\mblambda} \mathcal{L}$.
+      (\myeqp{grad_meanfield:reinforce},
+      \myeqp{grad_meanfield:reparam})
+      \BlankLine
+      Increment $t$.
+      \BlankLine
+    }
+    \BlankLine
+    // Fix $\mblambda$, maximize over $\mbeta$.\\[0.9ex]
+    %\BlankLine
+    Set iteration counter $t = 1$.
+    \BlankLine
+    \While{not converged}{
+      \BlankLine
+      Draw sample $\mbu\sim \operatorname{Unif}([0,1]^d)$.
+      \BlankLine
+      Update
+      $\mbeta = \mbeta + \rho_t \nabla_{\mbeta} \mathcal{L}$.
+      (\myeqp{grad_copula})
+      \BlankLine
+      Increment $t$.
+      \BlankLine
+    }
+    \BlankLine
+  }
+  \textbf{Output}: Variational parameters $(\mblambda,\mbeta)$.\;
+  \label{alg:cvi}
+\end{algorithm}
+%
+\Gls{CVI} has the same generic input requirements as black-box
+variational inference~\citep{ranganath2014black}---the user need only
+specify the joint model $p(\mbx,\mbz)$ in order to perform inference.
+Further, \acrlong{CVI} easily extends to the case when the original
+variational family uses a structured factorization. By the vine
+construction, one simply fixes pair copulas corresponding to
+pre-existent dependence in the factorization to be the independence
+copula. This enables the copula to only model dependence where it does
+not already exist.
+
+Throughout the optimization, we will assume that the tree structure
+and copula families are given and fixed.  We note, however, that these
+can be learned. In our study, we learn the tree structure using
+sequential tree selection~\citep{dissmann2012selecting} and learn the
+families, among a choice of 16 bivariate families, through Bayesian
+model selection~\citep{gruber2015sequential} (see supplement). In
+preliminary studies, we've found that re-selection of the tree
+structure and copula families do not significantly change in future
+iterations.
+
+\subsection{Stochastic gradients of the \gls{ELBO}}
+\label{subsec:derivatives}
+
+To perform stochastic optimization, we require stochastic gradients of
+the \gls{ELBO} with respect to both the mean-field and copula
+parameters. The \gls{CVI} objective leads to efficient stochastic
+gradients and with low variance.
+
+We first derive the gradient with respect to the mean-field
+parameters.  In general, we can apply the score function
+estimator~\citep{ranganath2014black}, which leads to the gradient
+\begin{equation}
+\nabla_{\mblambda}\mathcal{L} = \mathbb{E}_{q(\mbz;\mblambda,\mbeta)}[\nabla_{\mblambda}\log
+q(\mbz;\mblambda,\mbeta)\cdot(\log p(\mbx,\mbz)-\log
+q(\mbz;\mblambda,\mbeta))].
+\label{eq:grad_elbo}
+\end{equation}
+We follow noisy unbiased estimates of this gradient by sampling from
+$q(\cdot)$ and evaluating the inner expression.  We apply this gradient for
+discrete latent variables.
+
+When the latent variables $\mbz$ are differentiable, we use the
+reparameterization trick~\citep{rezende2014stochastic} to take advantage of first-order
+information from the model, i.e.,$\nabla_{\mbz} \log p(\mbx,\mbz)$.
+Specifically, we rewrite the expectation in terms of a random variable
+$\mbu$ such that its distribution $s(\mbu)$ does not depend on the
+variational parameters and such that the latent variables are a
+deterministic function of $\mbu$ and the mean-field parameters,
+$\mbz=\mbz(\mbu;\mblambda)$. Following this reparameterization, the
+gradients propagate inside the expectation,
+\begin{equation}
+  \nabla_{\mblambda}\mathcal{L} =
+  \mathbb{E}_{s(\mbu)}[(\nabla_{\mbz}\log
+  p(\mbx,\mbz)-\nabla_{\mbz}\log
+  q(\mbz;\mblambda,\mbeta))\nabla_{\mblambda}\mbz(\mbu;\mblambda)].
+\label{eq:grad_meanfield:reinforce}
+\end{equation}
+This estimator reduces the variance of the stochastic
+gradients~\citep{rezende2014stochastic}.
+Furthermore, with a copula variational family, this type of
+reparameterization using a uniform random variable $\mbu$ and a deterministic function $\mbz=\mbz(\mbu;\mblambda,\mbeta)$ is always possible. (See the supplement.)
+
+The reparameterized gradient (\myeqp{grad_meanfield:reinforce})
+requires calculation of the terms
+$\nabla_{\mbz_i}\log q(\mbz ; \mblambda,\mbeta)$ and
+$\nabla_{\mblambda_i}\mbz(\mbu;\mblambda,\mbeta)$ for each $i$. The latter is tractable and derived in the supplement; the former decomposes as
+\begin{align}
+  \nabla_{\mbz_i}\log q(\mbz; \mblambda, \mbeta)
+                 &=
+                   \nabla_{\mbz_i} \log q(\mbz_i; \mblambda_i) +
+                   \nabla_{Q(\mbz_i;\mblambda_i)} \log c(Q(\mbz_1;\mblambda_1), \ldots, Q(\mbz_d; \mblambda_d); \mbeta)
+                   \nabla_{\mbz_i} Q(\mbz_i;\mblambda_i)
+                   \nonumber
+  \\
+                 &=
+                   \nabla_{\mbz_i} \log q(\mbz_i; \mblambda_i)+
+                   q(\mbz_i;\mblambda_i)
+                   \sum_{j=1}^{d-1}\sum_{\substack{e(k,\ell)\in E_j:\\i\in
+  \{k,\ell\}}}
+  \nabla_{Q(\mbz_i;\mblambda_i)}
+  \log c_{k\ell|D(e)}.
+\label{eq:grad_meanfield:reparam}
+\end{align}
+The summation in \myeqp{grad_meanfield:reparam} is over all pair
+copulas which contain $Q(\mbz_i ; \mblambda_i)$ as an argument. In
+other words, the gradient of a latent variable $\mbz_i$ is evaluated
+over both the marginal $q(\mbz_i)$ and all pair copulas which model
+correlation between $\mbz_i$ and any other latent variable
+$\mbz_j$.
+%This extends to structured factorizations, where the
+%gradients evaluated for the pre-specified independence copulas are
+%zero.
+A similar derivation holds for calculating terms in the score function estimator.
+
+We now turn to the gradient with respect to the copula parameters. We
+consider copulas which are differentiable with respect to their
+parameters. This enables an efficient reparameterized gradient
+\begin{equation}
+\nabla_{\mbeta}\mathcal{L} =
+\mathbb{E}_{s(\mbu)}[(\nabla_{\mbz}\log
+p(\mbx,\mbz)-\nabla_{\mbz}\log
+q(\mbz;\mblambda,\mbeta))\nabla_{\mbeta}\mbz(\mbu;\mblambda,\mbeta)].
+\label{eq:grad_copula}
+\end{equation}
+The requirements are the same as for the mean-field parameters.
+
+Finally, we note that the only requirement on the model is the
+gradient $\nabla_{\mbz}\log p(\mbx,\mbz)$. This can be calculated
+using automatic differentiation tools~\citep{stan-software:2015}. Thus \Gls{CVI} can be implemented in a library
+and applied without requiring any manual derivations from the user.
+
+\subsection{Computational complexity}
+In the vine factorization of the copula, there are
+$d(d-1)/2$ pair copulas, where $d$ is the number of
+latent variables. Thus stochastic gradients of the
+mean-field parameters $\mblambda$ and copula parameters $\mbeta$
+require $\mathcal{O}(d^2)$ complexity.
+More generally, one can apply a low rank approximation to the copula
+by truncating the number of levels in the vine (see
+\myfig{vine_copula}). This reduces the number of pair copulas to be
+$Kd$ for some $K>0$, and leads to a computational complexity of
+$\mathcal{O}(Kd)$.
+
+Using sequential tree selection for learning the vine
+structure~\citep{dissmann2012selecting}, the most correlated variables
+are at the highest level of the vines. Thus a truncated low rank
+copula only forgets the weakest correlations.  This generalizes low
+rank Gaussian approximations, which also have $\mathcal{O}(Kd)$
+complexity~\citep{seeger2010gaussian}: it is the special case when the
+mean-field distribution is the product of independent Gaussians, and
+each pair copula is a Gaussian copula.
+%Truncating the number of levels
+%provides an explicit compromise between more scalable computation and
+%more expressive variational distributions.
+
+\subsection{Related work}
+Preserving structure in variational inference was first studied
+by~\citet{saul1995exploiting} in the case of probabilistic neural
+networks. It has been revisited recently for the case of conditionally
+conjugate exponential familes~\citep{hoffman2015structured}. Our work
+differs from this line in that we learn the dependency
+structure during inference, and thus we do not require explicit
+knowledge of the model. Further, our augmentation strategy works more
+broadly to any posterior distribution and any factorized variational
+family, and thus it generalizes these approaches.
+
+A similar augmentation strategy is higher-order mean-field
+%methods~\citep{opper2001from},
+methods,
+which are a Taylor series correction
+based on the difference between the posterior and its mean-field
+approximation~\citep{kappen2001second}. Recently,
+\citet{giordano2015linear} consider a covariance correction from the
+mean-field estimates. All these methods assume the mean-field
+approximation is reliable for the Taylor series expansion to make
+sense, which is not true in general and thus is not robust in a black
+box framework. Our approach alternates the estimation of the
+mean-field and copula, which we find empirically leads to more robust
+estimates than estimating them simultaneously, and which is
+less sensitive to the quality of the mean-field approximation.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "nips2015"
+%%% End:
