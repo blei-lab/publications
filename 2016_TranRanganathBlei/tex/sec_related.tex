@@ -1,0 +1,83 @@
+
+\section{Related work}
+\label{sec:related}
+
+Recently, there has been interest in applying parametric
+transformations for approximate inference. Parametric transformations of
+random variables induce a density in the transformed space, with a
+Jacobian determinant that accounts for how the transformation warps
+unit volumes. \citet{kucukelbir2016automatic} consider this viewpoint
+for automating inference, in which they posit a transformation from
+the standard normal to a possibly constrained latent variable space.
+In general, however, calculating the Jacobian determinant incurs a
+costly $\mathcal{O}(d^3)$ complexity, cubic in the number of latent
+variables. \citet{dinh2015nice} consider volume-preserving
+transformations which avoid calculating Jacobian determinants.
+\citet{salimans2015markov} consider volume-preserving transformations
+defined by Markov transition operators.
+\citet{rezende2015variational} consider a slightly broader class of
+parametric transformations, with Jacobian determinants having at most
+$\mathcal{O}(d)$ complexity.
+
+Instead
+of specifying a parametric class of mappings, the \gls{VGP} posits a
+Bayesian nonparametric prior over all continuous mappings. The
+\gls{VGP} can recover a certain class of parametric transformations by
+using kernels which induce a prior over that class.
+In the context of the \gls{VGP}, the
+\gls{GP} is an infinitely wide feedforward network which warps latent
+inputs to mean-field parameters. Thus, the \gls{VGP} offers complete
+flexibility on the space of mappings---there are no
+restrictions such as invertibility or linear complexity---and is fully
+Bayesian.
+Further, it is a hierarchical variational model, using the \gls{GP} as
+a variational prior over mean-field parameters
+\citep{ranganath2015hierarchical}. This enables inference over both
+discrete and continuous latent variable models.
+
+In addition to its flexibility over parametric methods,
+the \gls{VGP} is more computationally efficient. Parametric methods must consider transformations with
+Jacobian determinants of at most $\mathcal{O}(d)$ complexity. This
+restricts the flexibility of the mapping and therefore the flexibility
+of the variational model~\citep{rezende2015variational}. In comparison, the distribution of outputs
+using a \gls{GP} prior does not require any Jacobian determinants
+(following \myeqp{gp_posterior}); instead it requires auxiliary
+inference for inferring variational latent variables (which is fast). Further, unlike discrete Bayesian
+nonparametric priors such as an infinite mixture of mean-field
+distributions, the \gls{GP} enables black box inference with
+lower variance gradients---it applies a location-scale transform for
+reparameterization and has analytically tractable KL terms.
+
+Transformations, which convert samples from a tractable distribution
+to the posterior, is a classic technique in Bayesian inference. It was
+first studied in Monte Carlo methods, where it is core to the
+development of methods such as path sampling, annealed importance
+sampling, and sequential Monte
+Carlo~\citep{gelman1998simulating,neal1998annealed,chopin2002sequential}.
+These methods can be recast as specifying a discretized mapping
+$f_t$ for times $t_0<\ldots<t_k$, such that for draws $\mbxi$ from the
+tractable distribution, $f_{t_0}(\mbxi)$ outputs the same samples and
+$f_{t_k}(\mbxi)$ outputs exact samples following the posterior.  By
+applying the sequence in various forms,
+the transformation bridges the tractable distribution to the
+posterior.  Specifying a good transformation---termed ``schedule'' in
+the literature---is crucial to the efficiency of these methods. Rather than specify it
+explicitly, the
+\gls{VGP} adaptively learns this transformation and avoids
+discretization.
+
+Limiting the \gls{VGP} in various ways recovers well-known probability models
+as variational approximations. Specifically,
+we recover the discrete mixture of mean-field
+distributions~\citep{bishop1998approximating,jaakola1998improving}.
+We also recover a form of factor analysis~\citep{tipping1999probabilistic} in
+the variational space. Mathematical details are in
+\myappendix{special}.
+
+
+
+
+
+
+
+

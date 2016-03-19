@@ -1,0 +1,600 @@
+
+\section{Special cases of the variational Gaussian process}
+\label{appendix:special}
+
+
+We now analyze two special cases of the \gls{VGP}: by limiting its
+generative process in various ways, we recover well-known models.
+This
+provides intuition behind the \gls{VGP}'s complexity.  In
+\mysec{related} we show many recently proposed models can
+also be viewed as special cases of the \gls{VGP}.
+
+\begin{example}
+A mixture of mean-field distributions is a \gls{VGP} without a
+kernel.
+\end{example}
+
+A discrete mixture of mean-field
+distributions~\citep{bishop1998approximating,jaakola1998improving,lawrence2000variational}
+is a classically studied variational model
+with dependencies between latent variables.
+Instead of a mapping which interpolates between
+inputs of the variational data,
+suppose the \gls{VGP}
+simply performs nearest-neighbors for a latent input
+$\mbxi$---selecting
+the output $t_n$ tied to the nearest variational input $s_n$.
+This induces a multinomial distribution of outputs, which samples one
+of the variational outputs' mean-field parameters.%
+\footnote{%
+Formally, given variational input-output pairs $\{(\mbs_n,\mbt_n)\}$,
+the nearest-neighbor function is defined
+as $f(\mbxi)=\mbt_j$, such that
+$\|\mbxi- \mbs_j\|<\|\mbxi- \mbs_k\|$ for all $k$.
+Then the output's distribution is multinomial with
+probabilities $P(f(\mbxi)=\mbt_j)$, proportional to areas of the
+partitioned nearest-neighbor space.
+}
+Thus, with a \gls{GP} prior that interpolates between
+inputs, the \gls{VGP} can be seen as a kernel density smoothing of the
+nearest-neighbor function.
+
+\begin{example}
+Variational factor analysis is
+a \gls{VGP} with linear kernel and no variational data.
+\end{example}
+
+Consider factor analysis~\citep{tipping1999probabilistic} in the
+variational space:
+\footnote{\label{footnote:degenerate_mf}
+For simplicity, we avoid discussion of the \gls{VGP}'s underlying
+mean-field distribution, i.e., we specify each mean-field factor
+to be a degenerate point mass at its parameter value.
+}
+\begin{equation*}
+\mbxi \sim \mathcal{N}(\mbzero, \mbI),
+\qquad
+\mbz_i \sim \mathcal{N}(\mbf{w}^\top\mbxi, \mbI).
+\end{equation*}
+Marginalizing over the latent inputs induces
+linear dependence in $\mbz$,
+$q(\mbz;\mbf{w})=\mathcal{N}(\mbz; \mbzero,\mbf{w}\mbf{w}^\top)$.
+Consider the dual interpretation
+\begin{equation*}
+\mbxi \sim \mathcal{N}(\mbzero, \mbI),
+\qquad
+f_i \sim \mathcal{GP}(0,k(\cdot,\cdot)),%\text{ linear kernel }
+k(\mbs,\mbs')=\mbs^\top\mbs',
+\qquad
+\mbz_i=f_i(\mbxi),
+\end{equation*}
+with
+$q(\mbz\g\mbxi) = \mathcal{N}(\mbz; \mbzero,\mbxi\mbxi^\top)$.
+The maximum likelihood estimate of $\mbf{w}$ in factor analysis is the
+maximum a posteriori estimate of $\mbxi$ in the \gls{GP} formulation.
+More generally, use of a non-linear kernel induces non-linear
+dependence in $\mbz$.
+Learning the set of kernel hyperparameters $\mbtheta$ thus learns the set
+capturing the most variation in its
+latent embedding of $\mbz$~\citep{lawrence2005probabilistic}.
+
+
+
+\section{Proof of \mytheorem{limit}}
+\label{appendix:zero}
+
+\begingroup
+\def\thetheorem{\ref{theorem:limit}}
+\begin{theorem}
+\limittheorem
+\end{theorem}
+\addtocounter{theorem}{-1}
+\endgroup
+\begin{proof}
+Let the mean-field distribution be given by degenerate delta distributions
+\begin{align*}
+q(\mbz_i \g f_i) = \delta_{f_i}(\mbz_i).
+\end{align*}
+Let the size of the latent input be equivalent to the number of
+latent variables $c=d$ and fix $\sigma^2_{\textsc{ard}}=1$ and $\mbomega_j=1$. Furthermore for simplicity, we assume that
+$\mbxi$ is drawn uniformly on the $d$-dimensional hypercube. Then
+as explained in \mysec{vgp:universal},
+if we let $P^{-1}$ denote the inverse posterior cumulative distribution
+function, the optimal $f$ denoted $f^*$ such that
+\begin{equation*}
+\operatorname{KL}(q(\mbz; \mbtheta) \gg p(\mbz\g\mbx))
+= 0
+\end{equation*}
+is
+\begin{align*}
+f^*(\xi) = P^{-1}(\mbxi_1, ..., \mbxi_d).
+\end{align*}
+Define ${\cal O}_k$ to be the set of points $j/2^k$ for $j = 0$ to $2^k$, and define ${\cal S}_k$ to be the $d$-dimensional product of ${\cal O}_k$. Let
+$\cD_k$ be the set containing the pairs $(s_i, f^*(s_i))$, for each element $s_i$ in ${\cal S}_k$. Denote $f^k$ as the
+\acrshort{GP} mapping conditioned on the dataset $\cD_k$, this
+random mapping satisfies $f^k(s_i) = f^*(s_i)$ for all $s_i \in {\cal S}_k$ by the noise free prediction
+property of Gaussian processes~\citep{rasmussen2006gaussian}.
+Then by continuity, as $k \to \infty$, $f^k$  converges to $f^*$.
+\end{proof}
+A broad condition under which the quantile function of a distribution
+is continuous is if that distribution has positive density with
+respect to the Lebesgue measure.
+
+The rate of convergence for finite sizes of the variational data
+can be studied via posterior contraction rates for \glspl{GP} under random
+covariates~\citep{van2011information}. Only an additional assumption using
+stronger continuity conditions for the posterior quantile and the use
+of Matern covariance functions is required for the theory to be applicable in the variational setting.
+
+
+
+
+
+\section{Variational objective}
+\label{appendix:variational}
+
+We derive the tractable lower bound to the model evidence $\log
+p(\mbx)$ presented in \myeqp{variational_objective}.
+To do this, we first penalize the
+\gls{ELBO} with an expected KL term,
+\begin{align*}
+\log p(\mbx)
+&\ge \mathcal{L}
+=
+\mathbb{E}_{\qvgp}[\log p(\mbx\g\mbz)]
+- \operatorname{KL}(\qvgp(\mbz)\|p(\mbz))
+\\
+&\ge
+\mathbb{E}_{\qvgp}[\log p(\mbx\g\mbz)]
+- \operatorname{KL}(\qvgp(\mbz)\|p(\mbz))
+- \mathbb{E}_{\qvgp}\Big[
+\operatorname{KL}(q(\mbxi,f\g\mbz)\|r(\mbxi,f\g\mbz))
+\Big].
+\end{align*}
+We can combine all terms into the expectations as follows:
+\begin{align*}
+\widetilde{\cL}
+&=
+\mathbb{E}_{q(\mbz,\mbxi,f)}\Big[
+\log p(\mbx\g \mbz) - \log q(\mbz)
++\log p(\mbz)
+-
+\log q(\mbxi,f\g\mbz) + \log r(\mbxi,f\g\mbz)
+\Big]
+\\
+&=
+\mathbb{E}_{q(\mbz,\mbxi,f)}\Big[
+\log p(\mbx\g \mbz) - \log q(\mbz\g f(\mbxi))
++\log p(\mbz)
+-
+\log q(\mbxi,f) + \log r(\mbxi,f\g\mbz)
+\Big]
+,
+\end{align*}
+where we apply the product rule
+$q(\mbz)q(\mbxi,f\g\mbz)=q(\mbz\g f(\mbxi))q(\mbxi,f)$.
+Recombining terms as KL divergences, and written with parameters
+$(\mbtheta,\mbphi)$, this recovers the auto-encoded variational
+objective in \mysec{bbi}:
+\begin{align*}
+\widetilde{\cL}(\mbtheta,\mbphi)
+&
+=
+\mathbb{E}_{\qvgp}[\log p(\mbx\mid\mbz)]
+-
+\mathbb{E}_{\qvgp}\Big[
+\operatorname{KL}(q(\mbz\g f(\mbxi))\|p(\mbz))
+\Big]
+\\
+&
+\quad
+-
+\mathbb{E}_{\qvgp}\Big[
+\operatorname{KL}(q(f\g\mbxi;\mbtheta)\|r(f\g\mbxi,\mbz;\mbphi))
++
+\log q(\mbxi) - \log r(\mbxi\g\mbz)
+\Big].
+\end{align*}
+The KL divergence between the mean-field $q(\mbz\g f(\mbxi))$ and the
+model prior $p(\mbz)$ is analytically tractable for certain popular
+models.
+For example, in the deep latent Gaussian
+model~\citep{rezende2014stochastic} and \gls{DRAW}~\citep{gregor2015draw}, both the mean-field
+distribution and model prior are Gaussian, leading to an analytic KL
+term:
+for Gaussian random variables of dimension $d$,
+\begin{align*}
+\operatorname{KL}&(\mathcal{N}(\mbx; \m_1,\mbSigma_1)\|\mathcal{N}(\mbx; \m_2,\mbSigma_2))
+=
+\\
+&\frac{1}{2}
+\left(
+(\m_1-\m_2)^\top\mbSigma_1^{-1}(\m_1-\m_2) +
+\operatorname{tr}(\mbSigma_1^{-1}\mbSigma_2 + \log{\mbSigma_1} -
+\log{\mbSigma_2}) - d\right).
+\end{align*}
+In general, when the KL is intractable,
+we combine the KL term with the reconstruction term, and maximize the
+variational objective
+\begin{align}
+\begin{split}
+\widetilde{\cL}(\mbtheta,\mbphi)
+&
+=
+\mathbb{E}_{\qvgp}[\log p(\mbx,\mbz) - \log q(\mbz\g f(\mbxi))]
+\\
+&
+\quad
+-
+\mathbb{E}_{\qvgp}\Big[
+\operatorname{KL}(q(f\g\mbxi;\mbtheta)\|r(f\g\mbxi,\mbz;\mbphi))
++
+\log q(\mbxi) - \log r(\mbxi\g\mbz)
+\Big].
+\end{split}
+\label{eq:general_vgp_bound}
+\end{align}
+We expect that this experiences slightly higher variance in the
+stochastic gradients during optimization.
+
+We now consider the second term.
+Recall that we specify the auxiliary model to be a fully factorized
+Gaussian,
+$r(\mbxi,f\g\mbz) = \mathcal{N}((\mbxi,f(\mbxi))^\top\g\mbz; \m,\S)$,
+where $\m\in\mathbb{R}^{c+d}$, $\S\in\mathbb{R}^{c+d}$. Further, the
+variational priors $q(\mbxi)$ and $q(f\g\mbxi)$ are both defined to be
+Gaussian. Therefore it is also a KL
+divergence between Gaussian distributed
+random variables. Similarly, $\log q(\mbxi) - \log r(\mbxi\g\mbz)$ is
+simply a difference of Gaussian log densities.
+The second expression is simple to compute and backpropagate gradients.
+
+\section{Gradients of the variational objective}
+\label{appendix:gradients}
+
+We derive gradients for the variational objective
+(\myeqp{reparam_objective}). This follows trivially by backpropagation:
+\begin{align*}
+\nabla_{\mbtheta}
+\widetilde{\cL}(\mbtheta, \mbphi)
+&=
+\mathbb{E}_{\mathcal{N}(\mbxi)}[
+\mathbb{E}_{w(\mbepsilon)}[
+\nabla_{\mbtheta} \f(\mbxi)\nabla_{\f}\mbz(\mbepsilon)\nabla_{\mbz}
+\log p(\mbx\g\mbz)
+]]
+\\
+&\quad
+-
+\mathbb{E}_{\mathcal{N}(\mbxi)}\Big[\mathbb{E}_{w(\mbepsilon)}\Big[
+\nabla_{\mbtheta}
+\operatorname{KL}(q(\mbz\g \f(\mbxi;\mbtheta))\|p(\mbz))
+\Big]\Big]
+\\
+&\quad
+-
+\mathbb{E}_{\mathcal{N}(\mbxi)}\Big[\mathbb{E}_{w(\mbepsilon)}\Big[
+\nabla_{\mbtheta}
+\operatorname{KL}(q(f\g\mbxi;\mbtheta)\|r(f\g\mbxi,\mbz;\mbphi))
+\Big]\Big]
+,
+\\
+\nabla_{\mbphi}
+\widetilde{\cL}(\mbtheta, \mbphi)
+&=
+-
+\mathbb{E}_{\mathcal{N}(\mbxi)}[\mathbb{E}_{w(\mbepsilon)}[
+\nabla_{\mbphi}
+\operatorname{KL}(q(f\g\mbxi;\mbtheta)\|r(f\g\mbxi,\mbz;\mbphi))
+-
+\nabla_{\mbphi}
+\log r(\mbxi\g\mbz; \mbphi)
+]
+],
+\end{align*}
+where we assume the KL terms are analytically written from
+\myappendix{variational} and gradients are propagated similarly through their
+computational graph.
+In practice, we need only be
+careful about the expectations, and the gradients of the functions
+written above are taken care of with automatic differentiation tools.
+
+We also derive gradients for the general variational bound of
+\myeqp{general_vgp_bound}---it assumes that the first KL term,
+measuring the divergence between $q$ and the prior for $p$, is not
+necessarily tractable.
+Following the reparameterizations described in \mysec{bbi:gradient},
+this variational objective can be rewritten as
+\begin{align*}
+\widetilde{\cL}(\mbtheta, \mbphi)
+&=
+\mathbb{E}_{\mathcal{N}(\mbxi)}\Big[\mathbb{E}_{w(\mbepsilon)}\Big[
+\log p(\mbx,\mbz(\mbepsilon;\f)) - \log
+q(\mbz(\mbepsilon;\f)\g\f)
+\Big]\Big]
+\\
+&\quad
+-
+\mathbb{E}_{\mathcal{N}(\mbxi)}\Big[\mathbb{E}_{w(\mbepsilon)}\Big[
+\operatorname{KL}(q(f\g\mbxi;\mbtheta)\|r(f\g\mbxi,\mbz(\mbepsilon;\f);\mbphi))
++
+\log q(\mbxi) - \log r(\mbxi\g\mbz(\mbepsilon;\f))
+\Big]\Big]
+.
+\end{align*}
+We calculate gradients by backpropagating over the nested
+reparameterizations:
+\begin{align*}
+\nabla_{\mbtheta}
+\widetilde{\cL}(\mbtheta, \mbphi)
+&=
+\mathbb{E}_{\mathcal{N}(\mbxi)}[
+\mathbb{E}_{w(\mbepsilon)}[
+\nabla_{\mbtheta} \f(\mbxi)
+\nabla_{\f} \mbz(\mbepsilon)[\nabla_{\mbz}\log p(\mbx,\mbz) - \nabla_{\mbz}\log q(\mbz\g\f)]]]
+\\
+&\quad
+-
+\mathbb{E}_{\mathcal{N}(\mbxi)}\Big[\mathbb{E}_{w(\mbepsilon)}\Big[
+\nabla_{\mbtheta}
+\operatorname{KL}(q(f\g\mbxi;\mbtheta)\|r(f\g\mbxi,\mbz;\mbphi))
+\Big]\Big]
+\\
+\nabla_{\mbphi}
+\widetilde{\cL}(\mbtheta, \mbphi)
+&=
+-
+\mathbb{E}_{\mathcal{N}(\mbxi)}[\mathbb{E}_{w(\mbepsilon)}[
+\nabla_{\mbphi}
+\operatorname{KL}(q(f\g\mbxi;\mbtheta)\|r(f\g\mbxi,\mbz;\mbphi))
+-
+\nabla_{\mbphi}
+\log r(\mbxi\g\mbz; \mbphi)
+]
+]
+.
+\end{align*}
+
+\if0
+\subsection{Non-reparameterizable mean-field}
+
+\PP
+Suppose $q(\mbz\g\f)$ is not reparameterizable.  Then
+\begin{align*}
+\cL_{\textsc{vae}}(\f)
+&=
+\mathbb{E}_{q(\mbz\g\f)}[\log p(\mbx,\mbz) - \log q(\mbz\g\f)]
+\\
+\widetilde{\cL}(\mbtheta, \mbphi)
+&=
+\mathbb{E}_{\mathcal{N}(\mbxi)}[\cL_{\textsc{vae}}(\f(\mbxi))]
++
+\mathbb{E}_{\mathcal{N}(\mbxi)}[\mathbb{E}_{q(\mbz\g\f(\mbxi))}[\log r(\f(\mbxi) \g \mbz ; \mbphi)] - \log q(\f(\mbxi) ; \mbtheta)]
+\\
+\end{align*}
+Then
+\begin{align*}
+\nabla_{\f}
+\cL_{\textsc{vae}}(\f)
+&=
+\mathbb{E}_{q(\mbz\g\f)}[\nabla_{\f} \log q(\mbz\g\f) [\log p(\mbx,\mbz) - \log q(\mbz\g\f)]]
+\\
+\nabla_{\mbtheta}
+\widetilde{\cL}(\mbtheta, \mbphi)
+&=
+\mathbb{E}_{\mathcal{N}(\mbxi)}[\nabla_{\mbtheta} \f(\mbxi) \nabla_{\f} \cL_{\textsc{vae}}(\f)]
+\\
+&\quad
++
+\mathbb{E}_{\mathcal{N}(\mbxi)}[\nabla_{\mbtheta} \f(\mbxi) \nabla_{\f} [\log r(\f \g \mbz ; \mbphi) - \log q(\f ; \mbtheta)]]
+\\
+&\quad +
+\mathbb{E}_{\mathcal{N}(\mbxi)}[\nabla_{\mbtheta} \f(\mbxi) \mathbb{E}_{q(\mbz \g \f)}[V \log r(\f \g \mbz ; \mbphi)]].
+\\
+\nabla_{\mbphi}
+\widetilde{\cL}(\mbtheta, \mbphi)
+&=
+\mathbb{E}_{q(\mbz,\f;\mbtheta)} [\nabla_{\mbphi} \log r(\f \g \mbz, \mbphi)]
+.
+\end{align*}
+This is similar to \citet{ranganath2015hierarchical}.
+\fi
+
+\section{Scaling the size of variational data}
+\label{appendix:size}
+
+If massive sizes of variational data are required, e.g., when its
+cubic complexity due to inversion of a $m\times m$ matrix becomes the
+bottleneck during computation, we can scale it further.
+Consider fixing the variational inputs to lie on a grid.
+For stationary kernels, this allows us to exploit Toeplitz structure
+for fast $m\times m$ matrix inversion. In particular, one can embed
+the Toeplitz matrix into a circulant matrix and apply conjugate
+gradient combined with fast Fourier transforms in order to compute
+inverse-matrix vector products in $\mathcal{O}(m\log m)$ computation
+and $\mathcal{O}(m)$ storage~\citep{cunningham2008fast}.
+For product kernels, we can further exploit Kronecker structure to
+allow fast $m\times m$ matrix inversion in $\mathcal{O}(Pm^{1+1/P})$
+operations and $\mathcal{O}(Pm^{2/P})$ storage, where $P>1$ is the
+number of kernel products~\citep{osborne2010bayesian}. The \gls{ARD}
+kernel specifically leads to $\mathcal{O}(cm^{1+1/c})$ complexity,
+which is linear in $m$.
+
+\if0
+\section{Generative versus variational models}
+
+Modelling principles for generative models---which reason
+about how data may be generated---do not necessarily hold for
+variational models---which reason about how posterior latent variables
+may be generated.
+Here, no concept of overfitting on variational data exists: the data
+acts as variational parameters, so there is no noise to account for.
+Thus, unlike generative models using \glspl{GP}, the \gls{VGP} does
+not employ noise parameters, nor does it consider priors in order to
+avoid overfitting inputs of the variational
+data~\citep{lawrence2005probabilistic,titsias2010bayesian}.
+
+A natural question is to wonder the quality of the auxiliary model's
+fit to the variational model, i.e., whether other divergence measures
+are more suitable than $\operatorname{KL}(q\|r)$. This is another
+example of the difference between generative modelling principles and
+variational modelling principles. In the data space, we are concerned
+with the overall qualitative fit of approximating distributions to the
+posterior, and thus the form of divergence measure makes a
+considerable impact on posterior inference. In the variational space,
+however, we are not concerned with any qualitative fit---the only
+criterion is that it best improves the variational bound
+(\myeqp{variational_objective}). Interestingly, in
+\myappendix{general}, we analyze the use of general divergence
+measures with a linear combination $\mathbb{E}_{\qvgp}[\alpha
+\operatorname{KL}(q\|r) + \beta\operatorname{KL}(r\|q)]$: we show they
+optimally reduce to \myeqp{variational_objective}.
+
+\section{General divergence measures for auxiliary inference}
+\label{appendix:general}
+
+\PP intro about why you do this
+Consider penalizing the \gls{ELBO} more generally with a linear
+combination, $\mathbb{E}_q[\alpha\operatorname{KL}(q\|r) +
+\beta\operatorname{KL}(r\|q)]$ for $\alpha,\beta\ge 0$, in order to
+obtain a tractable variational objective. We show that this linear
+combination optimally reduces to the hierarchical ELBO's penalization
+of $\mathbb{E}_q[\operatorname{KL}(q\|r)]$.  Let $C=1-\alpha+\beta$;
+we will determine the values $\alpha,\beta$.
+\begin{align*}
+\widetilde{\cL} &=
+\mathbb{E}_{\qvgp}[\log p(\mbx, \mbz)]
+-
+\mathbb{E}_{\qvgp}[\log \qvgp(\mbz)]
+\\
+&\quad
+- \alpha\mathbb{E}_{\qvgp}\Big[
+\operatorname{KL}(q(\mbxi,\f\g\mbz)\|r(\mbxi,\f\g\mbz))
+\Big]
+- \beta\mathbb{E}_{\qvgp}\Big[
+\operatorname{KL}(r(\mbxi,\f\g\mbz)\|q(\mbxi,\f\g\mbz))
+\Big]
+\\
+&=
+\mathbb{E}_{\qvgp}[\log p(\mbx, \mbz)]
+-
+(\alpha + \beta + C)
+\mathbb{E}_{\qvgp}[\log \qvgp(\mbz)]
+\\
+&\quad
+- \alpha\mathbb{E}_{\qvgp}\Big[
+\mathbb{E}_{q(\mbxi,\f\g\mbz)}[
+\log q(\mbxi,\f\g\mbz) - \log r(\mbxi,\f\g\mbz)
+]
+\Big]
+\\
+&\quad
+- \beta\mathbb{E}_{\qvgp}\Big[
+\mathbb{E}_{r(\mbxi,\f\g\mbz)}[
+\log r(\mbxi,\f\g\mbz) - \log q(\mbxi,\f\g\mbz)
+]
+\Big]
+\\
+&=
+\mathbb{E}_{\qvgp}[\log p(\mbx, \mbz)]
+- C
+\mathbb{E}_{\qvgp}[\log \qvgp(\mbz)]
+\\
+&\quad
+- \alpha\mathbb{E}_{q(\mbz,\mbxi,\f)}\Big[
+\log \qvgp(\mbz)
++
+\log q(\mbxi,\f\g\mbz) - \log r(\mbxi,\f\g\mbz)
+\Big]
+\\
+&\quad
+- \beta\mathbb{E}_{\qvgp}\Big[
+\log \qvgp(\mbz)
++
+\mathbb{E}_{r(\mbxi,\f\g\mbz)}[
+\log r(\mbxi,\f\g\mbz)
+-
+\log q(\mbxi,\f\g\mbz)
+\Big]
+\\
+&=
+\mathbb{E}_{\qvgp}[\log p(\mbx, \mbz)]
+- C
+\mathbb{E}_{\qvgp}[\log \qvgp(\mbz)]
+\\
+&\quad
+- \alpha\mathbb{E}_{q(\mbz,\mbxi,\f)}\Big[
+\log q(\mbz\g\f)
++
+\log q(\mbxi,\f) - \log r(\mbxi,\f\g\mbz)
+\Big]
+\\
+&\quad
+- \beta\mathbb{E}_{\qvgp}\Big[
+2\log \qvgp(\mbz)
++
+\mathbb{E}_{r(\mbxi,\f\g\mbz)}[
+\log r(\mbxi,\f\g\mbz)
+-
+\log q(\mbz\g\f)
+-
+\log q(\mbxi,\f)
+]
+\Big],
+\end{align*}
+where the last equation follows from applying the product rule and
+substituting the two sets of terms
+\begin{align*}
+\log \qvgp(\mbz) + \log q(\mbxi,\f\g\mbz)
+&=
+\log q(\mbxi,\f) + \log q(\mbz\g\f),
+\\
+- \log q(\mbxi,\f\g\mbz)
+&=
+\log \qvgp(\mbz) -
+\log q(\mbxi,\f) - \log q(\mbz\g\f).
+\end{align*}
+Then we can combine the remaining expected $\log\qvgp(\mbz)$'s:
+\begin{align*}
+\widetilde{\cL}
+&=
+\mathbb{E}_{\qvgp}[\log p(\mbx, \mbz)]
+- (C + 2\beta)
+\mathbb{E}_{\qvgp}[
+\log \qvgp(\mbz)
+]
+\\
+&\quad
+- \alpha\mathbb{E}_{q(\mbz,\mbxi,\f)}\Big[
+\log q(\mbz\g\f)
++
+\log q(\mbxi,\f) - \log r(\mbxi,\f\g\mbz)
+\Big]
+\\
+&\quad
+- \beta\mathbb{E}_{\qvgp}\Big[
+\mathbb{E}_{r(\mbxi,\f\g\mbz)}[
+\log r(\mbxi,\f\g\mbz)
+-
+\log q(\mbz\g\f)
+-
+\log q(\mbxi,\f)
+]
+\Big]
+.
+\end{align*}
+We desire $C+2\beta=0$, so that we no longer have a term including the
+intractable density $\log\qvgp(\mbz)$, which implies $C=-2\beta$.
+Thus the feasible set is $\alpha,\beta\ge 0, \alpha-\beta=1$, which is
+the set $\{(\alpha\ge 1, \beta = \alpha-1)\}$.  Since $\alpha$ must be
+at least 1, any larger value will lead to a strictly lower variational
+bound.  Thus the optimal values are $\alpha=1,\beta=0$.
+
+If the feasible set for $\alpha$ included values less than $1$ and
+$\beta$ non-zero, then it would be sensible to consider variational
+bounds that include $\operatorname{KL}(r\|q)$, so long as it can
+provide a better variational bound on the evidence. However, this is
+not the case.
+\fi
+

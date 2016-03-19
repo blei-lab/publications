@@ -1,0 +1,21 @@
+
+\section{Discussion}
+\label{sec:discussion}
+
+We present the \acrfull{VGP}, a variational model which adapts its
+shape to match complex posterior distributions.
+The \gls{VGP}
+draws samples from a tractable distribution, and posits a Bayesian
+nonparametric prior over transformations from the tractable
+distribution to mean-field parameters.
+The \gls{VGP} learns the transformations from the space of
+all continuous mappings---it is a universal approximator and finds
+good posterior approximations via optimization.
+
+In future work the \gls{VGP} will be explored for application in Monte
+Carlo methods, where it may be an efficient proposal distribution for
+importance sampling and sequential Monte Carlo. An important avenue of
+research is also to characterize local optima inherent to the
+objective function. Such analysis will improve our
+understanding of the limits of the optimization procedure and thus the
+limits of variational inference.

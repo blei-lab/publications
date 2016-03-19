@@ -1,0 +1,24 @@
+\begin{tikzpicture}[x=1.7cm,y=1.8cm]
+
+  % Nodes
+  \node[obs]                  (z)      {$z_i$} ;
+  \node[latent, left=of z]    (f)      {$f_i$} ;
+  \node[latent, left=of f]    (xi)      {$\mbxi$} ;
+
+  \factor[above=of f, xshift=-1.25cm] {theta} {$\mbtheta$} {} {};
+  \factor[above=of f] {D} {\hspace{0.5cm}$\mathcal{D}=\{(\mbs,\mbt)\}$} {} {};
+  %\factor[above=of f] {D} {$\mathcal{D}$} {} {};
+
+  % Edges
+  \edge{xi}{f};
+  \edge{f}{z};
+  \edge{theta}{f};
+  \edge{D}{f};
+
+  % Plates
+  \plate[inner sep=0.35cm, yshift=0.15cm,
+    label={[xshift=-14pt,yshift=14pt]south east:$d$}] {plate1} {
+    (z)(f)
+  } {};
+
+\end{tikzpicture}

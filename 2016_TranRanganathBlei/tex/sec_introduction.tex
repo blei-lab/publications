@@ -1,0 +1,86 @@
+
+\section{Introduction}
+
+Variational inference is a powerful tool for approximate posterior
+inference. The idea is to posit a family of distributions over the
+latent variables and then find the member of that family closest to
+the posterior.  Originally developed in the
+1990s~\citep{hinton1993keeping,waterhouse1996bayesian,jordan1999introduction},
+variational inference has enjoyed renewed interest around developing
+scalable optimization for large datasets~\citep{hoffman2013stochastic},
+deriving generic strategies for easily fitting many
+models~\citep{ranganath2014black},
+and applying neural networks as a flexible parametric family of
+approximations~\citep{kingma2014autoencoding,rezende2014stochastic}.  This research has been particularly
+successful for computing with deep Bayesian
+models~\citep{neal1990learning,ranganath2015deep}, which
+require inference of a complex posterior distribution~\citep{hinton2006fast}.
+
+Classical variational inference typically uses the mean-field family,
+where each latent variable is independent and governed by its own
+variational distribution. While convenient, the
+strong independence limits learning
+deep representations of data. Newer research aims
+toward richer families that allow dependencies among the latent variables.  One way to introduce dependence is to consider the
+variational family itself as a model of the latent
+variables~\citep{lawrence2000variational,ranganath2015hierarchical}. These
+\textit{variational models} naturally extend to Bayesian hierarchies,
+which retain the mean-field ``likelihood'' but introduce dependence
+through variational latent variables.
+
+In this paper we develop a powerful new variational
+model---the~\glsreset{VGP}\gls{VGP}. The \gls{VGP} is a Bayesian
+nonparametric variational model; its complexity grows efficiently and
+towards \textit{any} distribution, adapting to the inference problem
+at hand.
+We highlight three main contributions of this work:
+\begin{enumerate}
+\item We prove a universal approximation theorem: under certain
+  conditions, the \gls{VGP} can capture any continuous posterior
+  distribution---it is a variational family that can be specified
+  to be as expressive as needed.
+
+\item We derive an efficient stochastic optimization algorithm for
+  variational inference with the \gls{VGP}.  Our algorithm can be used in a wide class of
+  models.  Inference with the \gls{VGP} is a black box variational
+  method~\citep{ranganath2014black}.
+
+\item We study the \gls{VGP} on standard benchmarks for unsupervised
+  learning, applying it to perform inference in deep latent
+  Gaussian models~\citep{rezende2014stochastic} and
+  DRAW~\citep{gregor2015draw}, a latent attention model. For both models, we report
+  the best results to date.
+\end{enumerate}
+
+\parhead{Technical summary.}
+Generative models hypothesize a distribution
+of observations $\mbx$ and latent variables $\mbz$, $p(\mbx,\mbz)$.
+Variational inference posits a family of the latent variables $q(\mbz; \mblambda)$
+and tries to find the variational parameters $\mblambda$ that are closest in
+KL divergence to the posterior.  When we use a variational model,
+$q(\mbz; \mblambda)$ itself might contain variational latent variables;
+these are implicitly marginalized out in the variational family~\citep{ranganath2015hierarchical}.
+
+The \gls{VGP} is a flexible variational
+model. It draw inputs from a
+simple distribution, warps those inputs through a non-linear mapping,
+and then uses the output of the mapping to govern the distribution of
+the latent variables $\mbz$. The non-linear mapping is itself a random
+variable, constructed from a Gaussian process.  The
+\gls{VGP} is inspired by ideas from both the Gaussian process latent variable
+model~~\citep{lawrence2005probabilistic}
+and Gaussian process
+regression~\citep{rasmussen2006gaussian}.
+
+The variational parameters of the \gls{VGP} are the kernel parameters
+for the Gaussian process and a set of \emph{variational data}, which
+are input-output pairs.  The variational data is crucial: it
+anchors the non-linear mappings at given inputs and outputs. It is
+through these parameters that the \gls{VGP} learns complex
+representations. Finally, given data $\mbx$, we use stochastic optimization to
+find the variational parameters that minimize the KL divergence to the model posterior.
+
+
+
+
+

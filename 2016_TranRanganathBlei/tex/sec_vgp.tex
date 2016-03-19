@@ -1,0 +1,272 @@
+
+\section{Variational Gaussian Process}
+
+Variational models introduce latent variables to the variational
+family, providing a rich construction for posterior
+approximation~\citep{ranganath2015hierarchical}.  Here we introduce
+the \acrfull{VGP}, a Bayesian nonparametric variational model that is
+based on the \acrlong{GP}.  The \gls{GP} provides a class of latent
+variables that lets us capture downstream distributions with varying
+complexity.
+
+We first review variational models and Gaussian processes.  We then
+outline the mechanics of the \gls{VGP} and prove that it is a
+universal approximator.
+
+\subsection{Variational models}
+\label{sec:background}
+
+Let $p(\mbz\g\mbx)$ denote a posterior distribution over $d$ latent
+variables $\mbz=(z_1,\ldots,z_d)$ conditioned on a data set
+$\mbx$. For a family of distributions $q(\mbz; \mblambda)$
+parameterized by $\mblambda$, variational inference seeks to minimize
+the divergence
+$\operatorname{KL}(q(\mbz; \mblambda)\gg p(\mbz\g\mbx))$.  This is
+equivalent to maximizing the
+\gls{ELBO}~\citep{wainwright2008graphical}.  The \gls{ELBO} can be
+written as a sum of the expected log likelihood of the data and the KL
+divergence between the variational distribution and the prior,
+\begin{equation}
+\label{eq:bound_autoencoder}
+\cL = \mathbb{E}_{q(\mbz; \mblambda)}[\log p(\mbx\mid\mbz)] -
+\operatorname{KL}(q(\mbz; \mblambda)\|p(\mbz)).
+\end{equation}
+Traditionally, variational inference considers a tractable family of
+distributions with analytic forms for its density. A common
+specification is a fully factorized distribution
+$\prod_i q(z_i; \lambda_i)$, also known as the mean-field
+family. While mean-field families lead to efficient computation,
+they limit the expressiveness of the approximation.
+
+The variational family of distributions can be interpreted as a model
+of the latent variables $\mbz$, and it can be made richer by
+introducing new latent variables. Hierarchical variational models
+consider distributions specified by a variational prior of the
+mean-field parameters $q(\mblambda;\mbtheta)$ and a factorized
+``likelihood'' $\prod_i q(z_i\mid\lambda_i)$.  This specifies the
+variational model,
+\begin{equation}
+\label{eq:hvm}
+q(\mbz;\mbtheta)=\int
+\Big[\prod_i q(z_i\mid\lambda_i)\Big]
+q(\mblambda;\mbtheta)\d\mblambda,
+\end{equation}
+which is governed by prior hyperparameters $\mbtheta$.  Hierarchical
+variational models are richer than classical variational
+families---their expressiveness is determined by the complexity
+of the prior $q(\mblambda)$. Many expressive variational
+approximations can be viewed under this
+construct~\citep{saul1996exploiting,jaakola1998improving,rezende2015variational,tran2015copula}.
+
+\subsection{Gaussian Processes}
+\label{sec:background:gaussian}
+
+We now review the
+\glsreset{GP}\gls{GP}~\citep{rasmussen2006gaussian}. Consider a data
+set of $m$ source-target pairs $\cD=\{(\mbs_n,\mbt_n)\}_{n=1}^m$,
+where each source $\mbs_n$ has $c$ covariates paired with a
+multi-dimensional target $\mbt_n\in\mathbb{R}^{d}$. We aim to learn a
+function over all source-target pairs,
+$
+\mbt_n = f(\mbs_n),
+$
+where $f:\mathbb{R}^c\to\mathbb{R}^d$ is unknown. Let the function
+$f$ decouple as $f=(f_1,\ldots,f_d)$, where each
+$f_i:\mathbb{R}^c\to\mathbb{R}$. \gls{GP} regression estimates the
+functional form of $f$ by placing a prior,
+\begin{equation*}
+p(f) = \prod_{i=1}^d \mathcal{GP}(f_i; \mbzero, \Kss),
+\end{equation*}
+where $\Kss$ denotes a covariance function $k(\mbs,\mbs')$ evaluated over pairs
+of inputs $\mbs,\mbs'\in\mathbb{R}^c$.
+In this paper, we consider \gls{ARD} kernels
+\begin{equation}
+k(\mbs,\mbs') = \sigma^2_{\textsc{ard}} \exp\Big(
+-\frac{1}{2}\sum_{j=1}^c \omega_j(s_j - s'_j)^2
+\Big),
+\label{eq:ard}
+\end{equation}
+with parameters
+$\mbtheta=(\sigma^2_{\textsc{ard}},\omega_1,\ldots,\omega_c)$. The
+weights $\omega_j$ tune the importance of each dimension.
+They can be driven to zero during inference, leading to automatic
+dimensionality reduction.
+
+Given data $\cD$, the conditional distribution of the \gls{GP} forms a
+distribution over mappings which interpolate between input-output
+pairs,
+\begin{equation}
+  p(f \g \cD) = \prod_{i=1}^d \mathcal{GP}(f_i; \Kxis \Kss^{-1} \mbt_i, \Kxixi -
+  \Kxis \Kss^{-1} \Kxis^\top).
+  \label{eq:gp_posterior}
+\end{equation}
+Here, $\Kxis$ denotes the covariance function $k(\mbxi, \mbs)$ for an
+input $\mbxi$ and over all data inputs $\mbs_n$, and $\mbt_i$
+represents the $i^{th}$ output dimension.
+
+\subsection{Variational Gaussian Processes}
+\label{sec:vgp}
+
+We describe the \acrfull{VGP}, a Bayesian nonparametric variational
+model that admits arbitrary structures to match posterior
+distributions. The \gls{VGP} generates $\mbz$ by generating latent
+inputs, warping them with random non-linear mappings, and using the
+warped inputs as parameters to a mean-field distribution.  The random
+mappings are drawn conditional on ``variational data,'' which are
+variational parameters. We will show that the
+\gls{VGP} enables samples from the mean-field to follow arbitrarily
+complex posteriors.
+
+\begin{figure}[tb]
+\begin{subfigure}[t]{0.5\columnwidth}
+  \centering
+  \input{img/vgp.tex}
+  \vspace{1ex}
+  \caption{\textsc{variational model}}
+  \label{sub:vgp}
+\end{subfigure}
+\begin{subfigure}[t]{0.5\columnwidth}
+  \centering
+  \input{img/black_box_model.tex}
+  \vspace{1ex}
+  \caption{\textsc{generative model}}
+  \label{sub:black_box}
+\end{subfigure}
+\caption{\textbf{(a)} Graphical model of the \acrlong{VGP}.
+The \gls{VGP} generates samples of latent variables $\mbz$ by
+evaluating random non-linear mappings of latent inputs $\mbxi$, and
+then drawing mean-field samples parameterized by the mapping.  These
+latent variables aim to follow the posterior distribution for a
+generative model \textbf{(b)}, conditioned on data $\mbx$.
+}
+\label{fig:vgp}
+\end{figure}
+
+
+The \gls{VGP} specifies the following
+generative process for posterior latent variables $\mbz$:
+\begin{enumerate}
+\item Draw latent input $\mbxi \in \mathbb{R}^c$:
+$\mbxi\sim\mathcal{N}(\mbzero,\mbI).$
+\item Draw non-linear mapping $f: \mathbb{R}^c\to\mathbb{R}^d$ conditioned on $\cD$:
+$f\sim \prod_{i=1}^d\mathcal{GP}(\mbzero, \Kxixi) \g \cD.$
+\item Draw approximate posterior samples $\mbz\in\operatorname{supp}(p)$:
+$\mbz=(z_1,\ldots,z_d)\sim \prod_{i=1}^d
+q(f_i(\mbxi) ).$
+\end{enumerate}
+\myfig{vgp} displays a graphical model for the \gls{VGP}.
+Here, $\cD=\{(\mbs_n,\mbt_n)\}_{n=1}^m$ represents variational data, comprising
+input-output pairs that are parameters to the variational
+distribution.
+Marginalizing over all latent inputs and non-linear mappings, the
+\gls{VGP} is
+\begin{equation}
+\qvgp(\mbz; \mbtheta, \cD)
+=
+\iint
+\left[
+\prod_{i=1}^d q(z_i\g f_i(\mbxi))
+\right]
+\left[
+\prod_{i=1}^d \mathcal{GP}(f_i; \mbzero, \Kxixi) \g \cD
+\right]
+\mathcal{N}(\mbxi; \mbzero,\mbI)
+\d f \d\mbxi.
+\label{eq:vgp}
+\end{equation}
+The \gls{VGP} is parameterized by kernel hyperparameters $\mbtheta$ and
+variational data.
+
+As a variational model, the \gls{VGP} forms an infinite ensemble of
+mean-field distributions. A mean-field distribution is given in the
+first term of the integrand above. It is
+\emph{conditional} on a fixed function $f(\cdot)$ and input $\mbxi$;
+the $d$ outputs $f_i(\mbxi)=\lambda_i$ are the mean-field's
+parameters. The \gls{VGP} is a form of a hierarchical variational
+model~(\myeqp{hvm})~\citep{ranganath2015hierarchical}. It places a continuous
+Bayesian nonparametric prior over mean-field parameters.
+
+Unlike the mean-field, the \gls{VGP} can capture correlation between the
+latent variables. The reason is that it evaluates the $d$ independent
+\gls{GP} draws at the same latent input $\mbxi$. This induces
+correlation between their outputs, the mean-field parameters, and thus
+also correlation between the latent variables. Further, the \gls{VGP} is
+flexible. The complex non-linear mappings drawn from the \gls{GP}
+allow it to capture complex discrete and continuous posteriors.
+
+We emphasize that the \gls{VGP} needs variational data. Unlike typical
+\gls{GP} regression, there are no observed data available to learn a
+distribution over non-linear mappings of the latent variables $\mbz$.
+Thus the "data" are variational parameters that appear in the
+conditional distribution of $f$ in \myeqp{gp_posterior}. They anchor
+the random non-linear mappings at certain input-ouput pairs. When
+optimizing the \gls{VGP}, the learned variational data enables finds a
+distribution of the latent variables that closely follows the
+posterior.
+
+\subsection{Universal approximation theorem}
+\label{sec:vgp:universal}
+
+
+
+To understand the capacity of the \gls{VGP} for representing complex
+posterior distributions,
+we analyze the role of the \acrlong{GP}. For simplicity,
+suppose the latent variables $\mbz$ are real-valued, and the \gls{VGP}
+treats the output of the function draws from the \gls{GP} as posterior
+samples.
+Consider the optimal
+function $f^*$, which is the transformation such that when we draw
+$\mbxi\sim\mathcal{N}(\mbzero,\mbI)$ and calculate $\mbz= f^*(\mbxi)$,
+the resulting distribution of $\mbz$ \emph{is} the posterior distribution.
+
+An explicit construction of $f^*$ exists if the dimension of the
+latent input $\mbxi$ is equal to the number of latent variables. Let
+$P^{-1}$ denote the inverse posterior CDF and $\Phi$ the standard
+normal CDF. Using techniques common in copula
+literature~\citep{nelsen2006introduction}, the optimal function is
+\begin{equation*}
+f^*(\mbxi) = P^{-1}(\Phi(\xi_1),\ldots,\Phi(\xi_d)).
+\end{equation*}
+Imagine generating samples $\mbz$ using this function. For latent
+input $\mbxi\sim\mathcal{N}(\mbzero,\mbI)$, the standard normal CDF
+$\Phi$ applies the probability integral transform: it squashes
+$\xi_i$ such that its output $u_i=\Phi(\xi_i)$ is uniformly
+distributed on $[0,1]$. The inverse posterior CDF then transforms the
+uniform random variables $P^{-1}(u_1,\ldots,u_d)=\mbz$ to follow
+the posterior. The function produces exact posterior samples.
+
+In the \gls{VGP}, the random function interpolates the values in the variational data,
+which are optimized to minimize the KL divergence.
+Thus, during inference, the distribution of the \gls{GP} learns to concentrate around this
+optimal function. This perspective provides intuition
+behind the following result.
+
+
+\newcommand{\limittheorem}{
+Let $q(\mbz;\mbtheta, \cD)$ denote the \acrlong{VGP}. Consider a
+posterior distribution $p(\mbz\g\mbx)$ with a finite number of latent
+variables and continuous quantile function (inverse CDF). There exists
+a sequence of parameters
+$(\mbtheta_k, \cD_k)$ such that
+\begin{equation*}
+\lim_{k \to \infty} \operatorname{KL}(q(\mbz; \mbtheta_k, \cD_k) \gg p(\mbz\g\mbx))
+= 0
+.
+\end{equation*}
+}
+\begin{theorem}
+[Universal approximation]
+\label{theorem:limit}
+\limittheorem
+\end{theorem}
+See \myappendix{zero} for a proof. \mytheorem{limit} states that any
+posterior distribution with strictly positive density
+can be represented by a \gls{VGP}.
+Thus the \gls{VGP} is a
+flexible model for learning posterior distributions.
+
+
+
+
+

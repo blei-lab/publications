@@ -1,0 +1,83 @@
+\documentclass{article} % For LaTeX2e
+\input{preamble/preamble.tex}
+\usepackage{iclr2016_conference}
+\input{preamble/preamble_acronyms.tex}
+\input{preamble/preamble_math.tex}
+\input{preamble/preamble_tikz.tex}
+\setlength{\marginparwidth}{1in} % for margins for sidenotes
+\definecolor{light}{RGB}{199, 153, 199}
+\definecolor{dark}{RGB}{143, 39, 143}
+
+\bibpunct{(}{)}{;}{a}{,}{,}
+\usepackage{pifont}% http://ctan.org/pkg/pifont
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+\usepackage{amsthm}
+\newtheorem{theorem}{Theorem}
+\newtheorem{example}{Special Case}
+
+\title{The Variational Gaussian Process}
+
+\author{
+Dustin Tran \\
+Harvard University \\
+\texttt{dtran@g.harvard.edu} \\
+\AND
+Rajesh Ranganath \\
+Princeton University \\
+\texttt{rajeshr@cs.princeton.edu}
+\AND
+David M. Blei \\
+Columbia University \\
+\texttt{david.blei@columbia.edu}
+}
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\iclrfinalcopy
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Variational inference is a powerful tool for approximate inference,
+and it
+has been recently applied for representation learning with deep generative models.
+We develop the \emph{\gls{VGP}}, a Bayesian nonparametric
+variational family, which adapts its shape to match complex posterior distributions.
+The \gls{VGP} generates approximate posterior samples by generating
+latent inputs and warping them through random non-linear mappings; the
+distribution over random mappings is
+learned during inference, enabling the transformed outputs to
+adapt to varying complexity. We prove a universal approximation theorem
+for the \gls{VGP}, demonstrating its representative power for learning
+any model. For
+inference we present a variational objective inspired by
+auto-encoders and perform black box inference over a wide class of
+models.
+The \gls{VGP} achieves new state-of-the-art results for
+unsupervised learning, inferring models such as the
+deep latent Gaussian model and the recently proposed DRAW.
+\end{abstract}
+
+\input{sec_introduction.tex}
+\input{sec_vgp.tex}
+\input{sec_bbi.tex}
+\input{sec_related.tex}
+\input{sec_experiments.tex}
+\input{sec_conclusion.tex}
+
+\subsubsection*{Acknowledgements}
+We thank David Duvenaud, Alp Kucukelbir, Ryan Giordano, and the
+anonymous reviewers for their helpful comments.
+This work is supported by NSF IIS-0745520, IIS-1247664, IIS-1009542, ONR N00014-11-1-0651, DARPA FA8750-14-2-0009, N66001-15-C-4032, Facebook, Adobe, Amazon, and the Seibel and John Templeton Foundations.
+
+\bibliographystyle{iclr2016_conference}
+\bibliography{iclr2016}
+
+\appendix
+\input{sec_appendix.tex}
+
+\end{document}

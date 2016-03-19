@@ -1,0 +1,20 @@
+\begin{tikzpicture}[x=1.7cm,y=1.8cm]
+
+  % Nodes
+  \node[latent]               (z)      {$z_{i}$} ;
+  \node[obs, right=of z]      (x)      {$\mbx$} ;
+
+  % Edges
+  \edge{z}{x};
+
+  % Plates
+  \plate[inner sep=0.35cm, yshift=0.15cm,
+    label={[xshift=-14pt,yshift=14pt]south east:$d$}] {plate1} {
+    (z)
+  } {};
+  %\plate[inner sep=0.35cm, yshift=0.15cm,
+  %  label={[xshift=-14pt,yshift=14pt]south east:$N$}] {plate2} {
+  %  (z)(x)(plate1)
+  %} {};
+
+\end{tikzpicture}
