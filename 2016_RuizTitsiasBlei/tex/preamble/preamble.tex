@@ -1,0 +1,30 @@
+\usepackage[T1]{fontenc}
+\usepackage{tgtermes}
+\usepackage[amssymbols,
+            subscriptcorrection,
+            slantedGreek,
+            nofontinfo,
+            mtpcal,
+            mtpbb]{mtpro2}
+\usepackage[T1]{fontenc}
+\usepackage{scalefnt,letltxmacro}
+\LetLtxMacro{\oldtextsc}{\textsc}
+\renewcommand{\textsc}[1]{\oldtextsc{\scalefont{1.10}#1}}
+
+% \renewcommand*\ttdefault{lmvtt}
+\usepackage[ttdefault=true]{AnonymousPro}
+
+% Set the typeface to Times Roman
+% \usepackage{times,amsmath,amssymb,paralist,graphicx,subfig}
+\usepackage{times,amsmath,paralist,graphicx,subfig}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage[acronym,smallcaps,nowarn]{glossaries}
+\usepackage{natbib}
+\usepackage[algoruled]{algorithm2e}
+
+\newcommand{\parhead}[1]{\textbf{#1}\,}
+
+\hyphenation{sig-ni-fi-cantly}
+\hyphenation{des-cri-be}
+\hyphenation{na-tu-ral}
+

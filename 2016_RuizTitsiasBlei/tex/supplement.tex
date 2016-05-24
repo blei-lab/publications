@@ -1,0 +1,77 @@
+% !TEX program = pdflatex
+% Sample LaTeX file for creating a paper in the Morgan Kaufmannn two
+% column, 8 1/2 by 11 inch proceedings format.
+
+\documentclass[]{article}
+\usepackage{preamble/proceed2e}
+
+\input{preamble/preamble}
+\input{preamble/preamble_acronyms}
+\input{preamble/preamble_math}
+
+
+
+\title{Overdispersed Black-Box Variational Inference:\\Supplement}
+
+% \author{}
+
+% The author names and affiliations should appear only in the accepted paper.
+%
+\author{%
+{\bf Francisco J.~R.~Ruiz} \\
+Data Science Institute \\
+Dept.~of Computer Science\\
+Columbia University\\
+\And
+{\bf Michalis K.~Titsias}  \\
+Dept.~of Informatics\\
+Athens University of\\Economics and Business  \\
+\And
+{\bf David M.~Blei}   \\
+Data Science Institute \\
+Dept.~of Computer Science and Statistics    \\
+Columbia University\\
+}
+
+\begin{document}
+
+\maketitle
+
+
+\section{EMPIRICAL STUDY: DISPERSION COEFFICIENTS}
+
+As an example, we show here some plots of the evolution of the dispersion coefficients $\tau_{nj}$. Specifically, we plot $\tau_{nj}$ for the two \gls{OBBVI} methods under study, namely, the method with a single proposal ($J=1$) and the mixture method that makes use of two proposals ($J=2$). For the latter, we only plot $\tau_{n2}$, since $\tau_{n1}$ is fixed to one.
+
+\begin{figure}[h]
+  \centering
+  \subfloat[Dispersion coefficient for the Gaussian distribution over $w_{11}$.\label{fig:tau_gamNormTS_wlk}]{%
+    \includegraphics[width=0.85\columnwidth]{plots/tau_gamNormTS_wlk.pdf}
+  }\\
+  \subfloat[Dispersion coefficient for the gamma distribution over $z_{111}$.\label{fig:tau_gamNormTS_xkpv}]{%
+    \includegraphics[width=0.85\columnwidth]{plots/tau_gamNormTS_xkpv.pdf}
+  }\\
+  \caption{Evolution of the dispersion coefficients for the \gls{GNTS} model. The single-proposal algorithm uses a lower dispersion coefficient.\label{fig:gamNormTS_tau}}
+\end{figure}
+
+We show\footnote{We truncated $\tau_{nj}\leq 20$ to avoid numerical instabilities.} in Figures~\ref{fig:gamNormTS_tau} and \ref{fig:poissonDEF_tau} the evolution of $\tau_{nj}$ for the two considered models: the \gls{GNTS} and the Poisson \gls{DEF}, respectively. We only plot the first $200$ iterations of the algorithm. For each model, we choose two specific latent variables (shown in the caption of the Figures), covering all the different variational distributions that we make use of (Gaussian, gamma, and Poisson).
+%
+As expected, the dispersion coefficient for the mixture case is higher than in the single-proposal case.
+
+\begin{figure}[h]
+  \centering
+  \subfloat[Dispersion coefficient for the gamma distribution over $w^{(0)}_{11}$.\label{fig:tau_poissonDEF_w0}]{%
+    \includegraphics[width=0.85\columnwidth]{plots/tau_poissonDEF_w0.pdf}
+  }\\
+  \subfloat[Dispersion coefficient for the Poisson distribution over $z^{(1)}_{11}$.\label{fig:tau_poissonDEF_zkl}]{%
+    \includegraphics[width=0.85\columnwidth]{plots/tau_poissonDEF_zkl.pdf}
+  }\\
+  \caption{Evolution of the dispersion coefficients for the Poisson \gls{DEF} model. The single-proposal algorithm uses a lower dispersion coefficient.\label{fig:poissonDEF_tau}}
+\end{figure}
+
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
