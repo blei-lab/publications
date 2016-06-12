@@ -454,9 +454,9 @@ driven by Eq.~\ref{eq:reinforce}.
 We have described \gls{BBVI} and its two strategies for reducing the
 variance of the noisy gradient.  We now describe \gls{OBBVI}, a method
 for further reducing the variance.  The main idea is to use importance
-sampling~\citep{Robert2005,Rubinstein2011} to estimate the gradient.
-We first describe \gls{OBBVI} and the proposal distribution it uses.
-We then show that this reduces variance, discuss several important
+sampling~\citep{Robert2005} to estimate the gradient.  We first
+describe \gls{OBBVI} and the proposal distribution it uses.  We then
+show that this reduces variance, discuss several important
 implementation details, and present the full algorithm.
 
 \gls{OBBVI} does not sample from the variational distribution
@@ -501,13 +501,15 @@ vector of the same length as $\blambda$.)
 
 While interesting, the optimal proposal distribution is not tractable
 in general---it involves normalizing a complex product---and is not
-``black box'' in the sense that it depends on the model
-via $f(\bz)$. In \gls{OBBVI}, we build an
-alternative proposal based on overdispersed exponential
-families~\citep{Jorgensen1987}.  We will argue that this proposal is
-closer to the (intractable) optimal $r^*(\bz)$ than the variational
-distribution $q(\bz;\blambda)$, and that it is still practical in the
-context of stochastic optimization of the variational objective.
+``black box'' in the sense that it depends on the model via
+$f(\bz)$. In \gls{OBBVI}, we build an alternative proposal based on
+overdispersed exponential families~\citep{Jorgensen1987}.  We will
+argue that this proposal is closer to the (intractable) optimal
+$r^*(\bz)$ than the variational distribution $q(\bz;\blambda)$, and
+that it is still practical in the context of stochastic optimization
+of the variational objective.  Note that approximating the optimal
+proposal in stochastic optimization was also explored
+in~\citet{Bouchard:2015a}.
 
 \parhead{The overdispersed proposal.} Our motivation for using
 overdispersed exponential families is that the optimal distribution of
@@ -858,8 +860,10 @@ There are several avenues for future work. First, we can explore other proposal 
 
 \vspace*{-5pt}
 \subsubsection*{Acknowledgements}
-\vspace*{-5pt}
-This work is supported by IIS-1247664, ONR N00014-11-1-0651, DARPA FA8750-14-2-0009, DARPA N66001-15-C-4032, Adobe, the John Templeton Foundation, and the Sloan Foundation.
+\vspace*{-5pt} This work is supported by IIS-1247664, ONR
+N00014-11-1-0651, DARPA FA8750-14-2-0009, DARPA N66001-15-C-4032,
+Adobe, the John Templeton Foundation, and the Sloan Foundation.  The
+authors thank Rajesh Ranganath and Guillaume Bouchard for useful discussions.
 
 
 \vspace*{-5pt}
