@@ -1,4 +1,4 @@
-# Variational Gaussian Process
+# The Variational Gaussian Process
 ## Dustin Tran, Rajesh Ranganath, and David M. Blei, ICLR 2016
 
 Abstract
@@ -18,7 +18,7 @@ The citation for this paper is:
 ```
 @inproceedings{tran2016variational,
   author = {Tran, Dustin and Ranganath, Rajesh and Blei, David M.},
-  title = {Variational Gaussian Process},
+  title = {The Variational Gaussian Process},
   booktitle = {International Conference on Learning Representations},
   year = {2016}
 }
