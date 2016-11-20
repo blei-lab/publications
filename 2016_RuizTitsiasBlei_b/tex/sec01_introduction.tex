@@ -1,0 +1,116 @@
+%!TEX root = reparam_nips2016.tex
+\vspace*{-10pt}
+\section{Introduction}
+\vspace*{-5pt}
+
+
+\Gls{VI} is a technique for approximating
+the posterior distribution in probabilistic models
+\citep{Jordan1999,Wainwright2008}.
+Given a probabilistic model $p(\bx, \bz)$ of observed variables $\bx$ and hidden variables $\bz$, the goal of \gls{VI} is to approximate the posterior
+$p(\bz \g \bx)$, which is intractable to compute exactly for
+many models. The idea of \gls{VI} is to posit
+a family of distributions over the latent variables $q(\bz ; \bv)$
+with free variational parameters $\bv$. \gls{VI} then fits those parameters
+to find the member of the family that is closest in \gls{KL} divergence to the
+exact posterior,
+$\bv^* = \arg \min_{\bv} \textrm{KL}(q(\bz ; \bv) || p(\bz \g \bx))$.
+This turns inference into optimization, and different ways of doing
+\gls{VI} amount to different optimization algorithms for
+solving this problem.
+
+For a certain class of probabilistic models, those where each
+conditional distribution is in an exponential family, we can easily
+use coordinate ascent optimization to minimize the \gls{KL}
+divergence~\citep{Ghahramani2001}. However, many important models do
+not fall into this class (e.g., probabilistic neural networks or
+Bayesian generalized linear models).
+%These include, e.g., probabilistic neural networks, deep exponential families, and many Bayesian generalized linear models.
+This is the scenario that we focus on in this paper.
+Much recent research in \gls{VI} has focused on
+these difficult settings, seeking effective optimization algorithms
+that can be used with any model. This has enabled the application of
+\gls{VI} on nonconjugate probabilistic models
+\citep{Carbonetto2009,Paisley2012,Ranganath2014,Titsias2014_doubly},
+deep neural networks
+\citep{Neal1992,Hinton1995,Mnih2014,Kingma2014}, and probabilistic
+programming \citep{Wingate2013,Kucukelbir2015,vandeMeent2016}.
+
+% the gradient of the variational objective. This enables the
+% application of variational inference on a broad class of problems,
+% ranging from nonconjugate probabilistic models
+% \citep{Carbonetto2009,Paisley2012,Salimans2013,Ranganath2014,Titsias2014_doubly},
+% deep neural networks
+% \citep{Neal1992,Hinton1995,Mnih2014,Kingma2014}, and probabilistic
+% programming \citep{Wingate2013,Kucukelbir2015,vandeMeent2016}.
+
+One strategy for \gls{VI} in nonconjugate models is to 
+obtain Monte Carlo estimates of the gradient of the variational objective
+and to use stochastic optimization to fit the variational parameters.
+Within this strategy, there have been two main lines of research:
+\gls{BBVI}~\citep{Ranganath2014} and reparameterization
+gradients~\citep{Salimans2013,Kingma2014}. Each enjoys different
+advantages and limitations.
+
+\gls{BBVI} expresses the gradient of the
+variational objective as an expectation with respect to the
+variational distribution using the log-derivative trick,
+also called \textsc{reinforce} or score function method
+\citep{Glynn1990,Williams1992}. It then takes samples from the variational
+distribution to calculate noisy gradients. \gls{BBVI} is generic---it
+can be used with any type of latent variables and any model. However,
+the gradient estimates typically suffer from high variance, which can
+lead to slow convergence. \citet{Ranganath2014} reduce the variance of
+these estimates using 
+Rao-Blackwellization~\citep{Casella1996} and control variates
+\citep{Ross2002,Paisley2012,Gu2016}. Other researchers have proposed
+further reductions, e.g., through local expectations
+\citep{Titsias2015} and importance sampling \citep{Ruiz2016}.
+
+% [todo] above, let's make sure we have all the relevant citations for
+% improving BBVI. -dmb
+
+The second approach to Monte Carlo gradients of the variational
+objective is through reparameterization
+\citep{Price1958,Bonnet1964,Salimans2013,Kingma2014,Rezende2014}.
+This approach reparameterizes the latent variable $\bz$ in terms of a set of
+auxiliary random variables whose distributions do not depend on the
+variational parameters (typically, a standard normal). This facilitates
+taking gradients of the
+variational objective because the gradient operator can be pushed
+inside the expectation, and because the resulting procedure only
+requires drawing samples from simple distributions, such as standard normals.
+We describe this in detail in \Cref{sec:background}.
+
+Reparameterization gradients exhibit lower variance than \gls{BBVI}
+gradients. They typically need only one Monte Carlo sample to estimate
+a noisy gradient, which leads to fast algorithms. Further, for some
+models, their variance can be bounded~\citep{Fan2015}. However,
+reparameterization is not as generic
+as \gls{BBVI}. It is typically used with Gaussian variational
+distributions and does not easily generalize to other common
+distributions, such as the gamma or beta, without using further approximations. (See \citet{Knowles2015} for an alternative approach to deal with the gamma distribution.)
+
+% (For the gamma distribution, \citet{Knowles2015} proposed a method based on approximations of the inverse cumulative density function; however, this approach is limited only to the gamma distribution and involves expensive computations.)
+
+We develop \textit{the \gls{G-REP}
+gradient}, a new method to extend reparameterization to other
+variational distributions. The main idea is to define an invertible
+transformation of the latent variables such that the distribution of the
+transformed variables is only weakly governed by the variational parameters. (We make this precise in Section~\ref{sec:g-rep}.) Our technique naturally combines both
+\gls{BBVI} and reparameterization; it applies to a wide class of
+nonconjugate models; it maintains the black-box criteria of reusing
+variational families; and it avoids approximations. We empirically
+show in two probabilistic models---a nonconjugate factorization
+model and a deep exponential family~\citep{Ranganath2015}---that a
+single Monte Carlo sample is enough to build an effective low-variance
+estimate of the gradient. In terms of speed, \gls{G-REP}
+outperforms \gls{BBVI}. In terms of accuracy, it outperforms
+\gls{ADVI} \citep{Kucukelbir2016}, which considers Gaussian variational
+distributions on a transformed space.
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "reparam_nips2016"
+%%% End:

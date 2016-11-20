@@ -1,0 +1,48 @@
+%!TEX root = reparam_nips2016.tex
+\vspace*{-7pt}
+\section{Background}
+\vspace*{-5pt}
+\label{sec:background}
+
+Consider a probabilistic model $p(\bx,\bz)$, where $\bz$ denotes the latent variables and 
+$\bx$ the observations. We assume that the posterior distribution $p(\bz\g\bx)$ is analytically intractable
+and we wish to apply \gls{VI}. We introduce a
+tractable distribution $q(\bz;\bv)$ to approximate $p(\bz\g\bx)$ and minimize the \gls{KL} divergence $\KL{q(\bz;\bv)}{p(\bz\g \bx)}$ with respect to the variational parameters $\bv$. This minimization is equivalently expressed as the maximization of the so-called \gls{ELBO} \citep{Jordan1999},
+\begin{equation}\label{eq:elbo}
+	\Lcal(\bv) = \E{q(\bz;\bv)}{\log p(\bx,\bz)-\log q(\bz;\bv)} = \E{q(\bz;\bv)}{f(\bz)} + \ent{q(\bz;\bv)}.
+\end{equation}
+We denote
+\begin{equation}
+	f(\bz)\triangleq\log p(\bx,\bz)
+\end{equation}
+to be the model log-joint density and $\ent{q(\bz;\bv)}$ to be the entropy of the variational distribution.
+When the expectation $\E{q(\bz;\bv)}{f(\bz)}$ is analytically tractable, the maximization 
+of the \gls{ELBO} can be carried out using standard optimization methods. Otherwise, when it is intractable, other techniques are needed. Recent approaches rely on stochastic optimization to construct Monte Carlo estimates of the gradient with respect to the variational parameters. Below, we review the two main methods for building such Monte Carlo estimates: the score function method and the reparameterization trick. 
+
+\parhead{Score function method.} A general way to obtain unbiased stochastic gradients is to use the 
+score function method, also called log-derivative trick or \textsc{reinforce} \citep{Williams1992,Glynn1990}, which has been recently applied to \gls{VI} \citep{Paisley2012,Ranganath2014,Mnih2014}. It is based on writing the gradient of the \gls{ELBO} with respect to $\bv$ as
+\begin{equation}\label{eq:reinforce}
+	\nabla_{\bv}\Lcal = \E{q(\bz;\bv)}{f(\bz) \nabla_{\bv}\log q(\bz;\bv)} + \nabla_{\bv}\ent{q(\bz;\bv)},
+\end{equation}
+and then building Monte Carlo estimates by approximating the expectation with samples from $q(\bz;\bv)$. 
+The resulting estimator suffers from high variance, making it necessary to apply variance reduction methods such as control variates \citep{Ross2002} or Rao-Blackwellization \citep{Casella1996}. Such variance reduction techniques have been used in \gls{BBVI} \citep{Ranganath2014}.  
+
+
+\parhead{Reparameterization.} The reparameterization trick \citep{Salimans2013,Kingma2014} expresses the latent variables $\bz$ as an invertible function of another set of variables $\beps$, i.e., $\bz=\Tcal(\beps;\bv)$, such that the distribution of the new random variables $q_{\beps}(\beps)$ does not depend on the variational parameters $\bv$. Under these assumptions, expectations with respect to $q(\bz;\bv)$ can be expressed as $\E{q(\bz;\bv)}{f(\bz)}=\E{q_{\beps}(\beps)}{f\left(\Tcal(\beps;\bv)\right)}$, and the gradient with respect to $\bv$ can be pushed into the expectation, yielding
+\begin{equation}\label{eq:reparam}
+	\nabla_{\bv}\Lcal = \E{q_{\beps}(\beps)}{\nabla_{\bz}f(\bz)\big|_{\bz=\Tcal(\beps;\bv)} \nabla_{\bv} \Tcal(\beps;\bv)} + \nabla_{\bv}\ent{q(\bz;\bv)}.
+\end{equation}
+The assumption here is that the log-joint $f(\bz)$ is differentiable. The gradient $\nabla_{\bz}f(\bz)$ depends on the model, but it can be computed using automatic differentiation tools \citep{Baydin2015}. Monte Carlo estimates of the reparameterization gradient typically present much lower variance than those based on Eq.~\ref{eq:reinforce}. In practice, a single sample from $q_{\beps}(\beps)$ is enough to obtain a low-variance estimate.\footnote{In the literature, there is no formal proof that reparameterization has lower variance than the score function estimator, except for some simple models \citep{Fan2015}. \citet{Titsias2014_doubly} provide some intuitions, and \citet{Rezende2014} show some benefits of reparameterization in the Gaussian case.}
+
+The reparameterization trick is thus a powerful technique to reduce the variance of the estimator, but it requires a transformation $\beps=\Tcal^{-1}(\bz;\bv)$ such that $q_{\beps}(\beps)$ does not depend on the variational parameters $\bv$. For instance, if the variational distribution is Gaussian with mean $\bmu$ and covariance $\bSigma$, a straightforward transformation consists of standardizing the random variable $\bz$, i.e.,
+\begin{equation}\label{eq:standardiz_gaussian}
+	\beps=\Tcal^{-1}(\bz;\bmu,\bSigma)=\bSigma^{-\frac{1}{2}}(\bz-\bmu).
+\end{equation}
+This transformation ensures that the (Gaussian) distribution $q_{\beps}(\beps)$ does not depend on $\bmu$ or $\bSigma$. For a general variational distribution $q(\bz;\bv)$, \citet{Kingma2014} discuss three families of transformations: inverse \gls{CDF}, location-scale, and composition. However, these transformations may not apply in certain cases.\footnote{The inverse \gls{CDF} approach sets $\Tcal^{-1}(\bz;\bv)$ to the \gls{CDF}. This leads to a uniform distribution over $\beps$ on the unit interval, but it is not practical because the inverse \gls{CDF}, $\Tcal(\beps;\bv)$, does not have analytical solution in general. We develop an approach that does not require computation of (inverse) \gls{CDF}'s or their derivatives.}
+Notably, none of them apply to the gamma\footnote{Composition is only available when it is possible to express the gamma as a sum of exponentials, i.e., its shape parameter is an integer, which is not generally the case in \gls{VI}.} and the beta distributions, although these distributions are often used in \gls{VI}.
+
+%This transformation ensures that the (Gaussian) distribution $q_{\beps}(\beps)$ does not depend on $\bmu$ or $\bSigma$. For a general variational distribution $q(\bz;\bv)$, \citet{Kingma2014} discuss three families of transformations (inverse cumulative density function, location-scale, and composition). However, these transformations may not apply in certain cases. Notably, none of them apply to the gamma and the beta distributions, although these distributions are often used in \gls{VI}.\footnote{The location-scale transformation does not apply for these distributions. The inverse cumulative density function does not have analytical solution. Composition is only available when it is possible to express the gamma as a sum of exponentials, i.e., its shape parameter is an integer, which is not generally the case in \gls{VI}.}
+
+%\footnote{For example, it is possible to set $\Tcal^{-1}(\bz;\bv)$ to be the cumulative density function. This leads to a uniform distribution over $\beps$ on the unit interval, but it is not practical because the inverse transformation $\Tcal(\beps;\bv)$ does not have analytical solution in general.}
+
+Next, we show how to relax the constraint that the transformed density $q_{\beps}(\beps)$ must not depend on the variational parameters $\bv$. We follow a standardization procedure similar to the Gaussian case in Eq.~\ref{eq:standardiz_gaussian}, but we allow the distribution of the standardized variable $\beps$ to depend (at least weakly) on $\bv$.

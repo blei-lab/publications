@@ -1,0 +1,115 @@
+% FONTS
+\usepackage[T1]{fontenc}
+
+% Replace default Latin Modern typewriter with its proportional counterpart
+% http://www.tug.dk/FontCatalogue/lmoderntypewriterprop/
+\renewcommand*\ttdefault{lmvtt}
+
+%%% OPTION 3 - MTPRO 2 Math + Termes Times + ParaType Sans
+
+\usepackage{tgtermes}
+\usepackage{amsmath}
+\usepackage[subscriptcorrection,
+            amssymbols,
+            mtpbb,
+            mtpcal,
+            nofontinfo  % suppresses all warnings
+           ]{mtpro2}
+\usepackage{scalefnt,letltxmacro}
+\LetLtxMacro{\oldtextsc}{\textsc}
+\renewcommand{\textsc}[1]{\oldtextsc{\scalefont{1.10}#1}}
+\usepackage[scaled=0.92]{PTSans}
+
+% COLOR
+\usepackage[usenames,dvipsnames]{xcolor}
+\definecolor{shadecolor}{gray}{0.9}
+
+% SPACING and TEXT
+\usepackage[final,expansion=alltext]{microtype}
+\usepackage[english]{babel}
+\usepackage[parfill]{parskip}
+\usepackage{afterpage}
+\usepackage{framed}
+\usepackage{nicefrac}
+\usepackage{bm}
+
+% EDITING
+% line numbering in left margin
+\usepackage{lineno}
+\renewcommand\linenumberfont{\normalfont
+                             \footnotesize
+                             \sffamily
+                             \color{SkyBlue}}
+% ragged paragraphs in right margin
+\usepackage{ragged2e}
+\DeclareRobustCommand{\sidenote}[1]{\marginpar{
+                                    \RaggedRight
+                                    \textcolor{Plum}{\textsf{#1}}}}
+% paragraph helper
+\DeclareRobustCommand{\PP}{\textcolor{Plum}{\P}~}
+\DeclareRobustCommand{\pp}{\textcolor{Plum}{\P}~}
+\DeclareRobustCommand{\parhead}[1]{\textbf{#1}~}
+
+% COUNTERS
+\renewcommand{\labelenumi}{\color{black!67}{\arabic{enumi}.}}
+\renewcommand{\labelenumii}{{\color{black!67}(\alph{enumii})}}
+\renewcommand{\labelitemi}{{\color{black!67}\textbullet}}
+
+% FIGURES
+\usepackage{graphicx}
+\usepackage[labelfont=bf]{caption}
+%\usepackage[format=hang]{subcaption}
+\usepackage{subfig}
+
+% TABLES
+\usepackage{booktabs}
+
+% BIBLIOGRAPHY
+\usepackage{natbib}
+
+% ALGORITHMS
+\usepackage[algoruled]{algorithm2e}
+\usepackage{listings}
+\usepackage{fancyvrb}
+\fvset{fontsize=\normalsize}
+
+% HYPERREF
+\usepackage[colorlinks,linktoc=all]{hyperref}
+\usepackage[all]{hypcap}
+\hypersetup{citecolor=Violet}
+\hypersetup{linkcolor=black}
+\hypersetup{urlcolor=MidnightBlue}
+
+% CLEVEREF must come after HYPERREF
+\usepackage[nameinlink]{cleveref}
+
+% ACRONYMS
+\usepackage[acronym,smallcaps,nowarn]{glossaries}
+% \makeglossaries
+
+% COLOR DEFINITIONS
+\newcommand{\red}[1]{\textcolor{BrickRed}{#1}}
+\newcommand{\orange}[1]{\textcolor{BurntOrange}{#1}}
+\newcommand{\green}[1]{\textcolor{OliveGreen}{#1}}
+\newcommand{\blue}[1]{\textcolor{MidnightBlue}{#1}}
+\newcommand{\gray}[1]{\textcolor{black!60}{#1}}
+
+% LISTINGS DEFINTIONS
+\usepackage{listings}
+\lstdefinestyle{alp_style}{
+    commentstyle=\color{OliveGreen},
+    numberstyle=\tiny\color{black!60},
+    stringstyle=\color{BrickRed},
+    basicstyle=\ttfamily\scriptsize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=none,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+\lstset{style=alp_style}

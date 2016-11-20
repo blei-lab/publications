@@ -1,0 +1,165 @@
+%!TEX root = reparam_nips2016.tex
+\vspace*{-5pt}
+\section{The Generalized Reparameterization Gradient}
+\vspace*{-5pt}
+\label{sec:g-rep}
+
+We now generalize the reparameterization idea to distributions that, like the gamma or the beta, do not admit the standard reparameterization trick. We assume that we can efficiently sample from the variational distribution $q(\bz;\bv)$, and that $q(\bz;\bv)$ is differentiable with respect to $\bz$ and $\bv$.
+%
+We introduce a random variable $\beps$ defined by an invertible transformation 
+\begin{equation}
+\beps = \Tcal^{-1}(\bz;\bv), \qquad \textrm{and} \qquad \bz=\Tcal(\beps;\bv),
+\end{equation} 
+where we can think of $\beps = \Tcal^{-1}(\bz;\bv)$ as a \emph{standardization procedure} that 
+attempts to make the distribution of $\beps$ weakly dependent on the variational parameters $\bv$. ``Weakly'' means that at least its first moment does not depend on $\bv$. For instance, if $\beps$ is defined to have zero mean, then its first moment has become independent of $\bv$. However, we \emph{do not} assume that the resulting distribution of $\beps$ is completely independent of the variational parameters $\bv$, and therefore we write it as $q_{\beps}(\beps;\bv)$. We use the distribution $q_{\beps}(\beps;\bv)$ in the derivation of \gls{G-REP}, but we write the final gradient as an expectation with respect to the original variational distribution $q(\bz;\bv)$, from which we can sample. 
+
+More in detail, by the standard change-of-variable technique, the transformed density is
+\begin{equation}\label{eq:q_eps}
+	q_{\beps}(\beps;\bv)=q\left(\Tcal(\beps;\bv);\bv\right)J(\beps,\bv),\quad {\rm where} \quad
+	J(\beps,\bv)\triangleq\left|\det \nabla_{\beps}\Tcal(\beps;\bv)\right|,
+\end{equation}
+is a short-hand for the absolute value of the determinant of the Jacobian. We first use the transformation to rewrite the gradient of $\E{q(\bz;\bv)}{f(\bz)}$ in \eqref{eq:elbo} as
+\begin{equation}
+	\begin{split}
+    	\nabla_{\bv} \E{q(\bz;\bv)}{f(\bz)} = \nabla_{\bv}\E{q_{\beps}(\beps;\bv)}{f\left(\Tcal(\beps;\bv)\right)} = \nabla_{\bv}\int q_{\beps}(\beps;\bv)f\left(\Tcal(\beps;\bv)\right) d\beps.
+	\end{split}
+\end{equation}
+We now express the gradient as the sum of two terms, which we name $\bg^{\textrm{rep}}$ and $\bg^{\textrm{corr}}$ for reasons that we will explain below. We apply the log-derivative trick and the product rule for derivatives, yielding
+\begin{equation}\label{eq:grad_as_sum_of_two_terms}
+	\begin{split}
+    	\nabla_{\bv} \E{q(\bz;\bv)}{f(\bz)} = \underbrace{\int q_{\beps}(\beps;\bv)\nabla_{\bv}f\left(\Tcal(\beps;\bv)\right)d\beps}_{\bg^{\textrm{rep}}} +
+    	\underbrace{\int q_{\beps}(\beps;\bv)f\left(\Tcal(\beps;\bv)\right)\nabla_{\bv} \log q_{\beps}(\beps;\bv) d\beps}_{\bg^{\textrm{corr}}},
+	\end{split}
+\end{equation}
+We rewrite Eq.~\ref{eq:grad_as_sum_of_two_terms} as an expression that involves expectations with respect to the original variational distribution $q(\bz;\bv)$ only. For that, we define the following two auxiliary functions that depend on the transformation $\Tcal(\beps;\bv)$:
+\begin{equation}\label{eq:hfun_ufun}
+    \hfun(\beps;\bv)\triangleq \nabla_{\bv} \Tcal(\beps;\bv),
+    \qquad \textrm{and} \qquad
+    \ufun(\beps;\bv)\triangleq \nabla_{\bv} \log J(\beps,\bv).
+\end{equation}
+After some algebra (see the Supplement for details), we obtain
+\begin{equation}\label{eq:grep_gcorr}
+  \begin{split}
+      & \bg^{\textrm{rep}} = \E{q(\bz;\bv)}{\nabla_{\bz}f(\bz) \hfun\left( \Tcal^{-1}(\bz;\bv);\bv \right)},\\
+      & \bg^{\textrm{corr}} = \E{q(\bz;\bv)}{f(\bz) \left(\nabla_{\bz}\log q(\bz;\bv) \hfun\left(\Tcal^{-1}(\bz;\bv);\bv\right) + \nabla_{\bv}\log q(\bz;\bv)+ \ufun\left(\Tcal^{-1}(\bz;\bv);\bv \right) \right)}.
+  \end{split}
+\end{equation}
+Thus, we can finally write the full gradient of the \gls{ELBO} as
+\begin{equation}\label{eq:corrected_reparam}
+	\nabla_{\bv}\Lcal = \bg^{\textrm{rep}} + \bg^{\textrm{corr}} + \nabla_{\bv}\ent{q(\bz;\bv)},
+\end{equation}
+
+\vspace*{-5pt}
+\parhead{Interpretation of the generalized reparameterization gradient.}
+The term $\bg^{\textrm{rep}}$ is easily recognizable as the standard reparameterization gradient, and hence the label ``rep.'' Indeed, if the distribution $q_{\beps}(\beps;\bv)$ does not depend on the variational parameters $\bv$, then the term $\nabla_{\bv} \log q_{\beps}(\beps;\bv)$ in Eq.~\ref{eq:grad_as_sum_of_two_terms} vanishes, making $\bg^{\textrm{corr}}=\bzero$. Thus, we may interpret $\bg^{\textrm{corr}}$ as a ``correction'' term that appears when the transformed density depends on the variational parameters.
+
+Furthermore, we can recover the score function gradient in Eq.~\ref{eq:reinforce} by choosing the identity transformation, $\bz = \Tcal(\beps;\bv) = \beps$. In such case, the auxiliary functions in Eq.~\ref{eq:hfun_ufun} become zero because the transformation does not depend on $\bv$, i.e., $\hfun(\beps;\bv)=\bzero$ and $\ufun(\beps;\bv)=\bzero$. This implies that $\bg^{\textrm{rep}}=\bzero$ and $\bg^{\textrm{corr}}=\E{q(\bz;\bv)}{f(\bz)\nabla_{\bv}\log q(\bz;\bv)}$.
+
+%Interestingly, if we choose the identity transformation, $\bz = \Tcal(\beps;\bv) = \beps$, then the auxiliary functions in Eq.~\ref{eq:hfun_ufun} become zero because the transformation does not depend on $\bv$, i.e., $\hfun(\beps;\bv)=\bzero$ and $\ufun(\beps;\bv)=\bzero$. This implies that $\bg^{\textrm{rep}}=\bzero$ and $\bg^{\textrm{corr}}=\E{q(\bz;\bv)}{f(\bz)\nabla_{\bv}\log q(\bz;\bv)}$, which can be recognized as the score function gradient in \eqref{eq:reinforce}.
+
+Alternatively, we can interpret the \gls{G-REP} gradient as a control variate of the score function gradient. For that, we rearrange Eqs.~\ref{eq:grad_as_sum_of_two_terms} and \ref{eq:grep_gcorr} to express the gradient as
+\begin{align}
+	\nabla_{\bv} \E{q(\bz;\bv)}{f(\bz)} = & \; \E{q(\bz;\bv)}{f(\bz) \nabla_{\bv}\log q(\bz;\bv)} \nonumber \\
+	& + \bg^{\textrm{rep}} + \E{q(\bz;\bv)}{f(\bz) \left(\nabla_{\bz}\log q(\bz;\bv) \hfun\left(\Tcal^{-1}(\bz;\bv);\bv\right) + \ufun\left(\Tcal^{-1}(\bz;\bv);\bv \right) \right)},\nonumber
+\end{align}
+where the second line is the control variate, which involves the reparameterization gradient.
+
+\parhead{Transformations.}
+Eqs.~\ref{eq:grad_as_sum_of_two_terms} and \ref{eq:grep_gcorr} are valid for any transformation $\Tcal(\beps;\bv)$. However, we may expect some transformations to perform better than others, in terms of the variance of the resulting estimator. It seems sensible to search for transformations that make $\bg^{\textrm{corr}}$ small, as the reparameterization gradient $\bg^{\textrm{rep}}$ is known to present low variance in practice under standard smoothness conditions of the log-joint \citep{Fan2015}.\footnote{Techniques such as Rao-Blackwellization could additionally be applied to reduce the variance of $\bg^{\textrm{corr}}$. We do \emph{not} apply any such technique in this paper.} Transformations that make $\bg^{\textrm{corr}}$ small are such that $\beps = \Tcal^{-1}(\bz;\bv)$ becomes weakly dependent on the variational parameters $\bv$.
+%
+In the standard reparameterization of Gaussian random variables, the transformation takes the form in \eqref{eq:standardiz_gaussian}, and thus $\beps$ is a standardized version of $\bz$. We mimic this standardization idea for other distributions as well. In particular, for exponential family distributions, we use transformations of the form (sufficient statistic $-$ expected sufficient statistic)$/$(scale factor). We present several examples in the next section.
+
+\vspace*{-5pt}
+\subsection{Examples}
+\vspace*{-5pt}
+For concreteness, we show here some examples of the equations above for well-known probability distributions. In particular, we choose the gamma, log-normal, and beta distributions.
+
+\parhead{Gamma distribution.}
+Let $q(z;\alpha,\beta)$ be a gamma distribution with shape $\alpha$ and rate $\beta$. We use a transformation based on standardization of the sufficient statistic $\log(z)$, i.e.,
+\begin{equation}
+	\epsilon=\Tcal^{-1}(z;\alpha,\beta)=\frac{\log(z)-\psi(\alpha)+\log(\beta)}{\sqrt{\psi_1(\alpha)}},\nonumber
+\end{equation}
+where $\psi(\cdot)$ denotes the digamma function, and $\psi_k(\cdot)$ is its $k$-th derivative. This ensures that $\epsilon$ has zero mean and unit variance, and thus its two first moments do not depend on the variational parameters $\alpha$ and $\beta$. We now compute the auxiliary functions in Eq.~\ref{eq:hfun_ufun} for the components of the gradient with respect to $\alpha$ and $\beta$, which take the form
+\begin{align}
+    & \hfun_{\alpha}(\epsilon;\alpha,\beta) = \Tcal(\epsilon;\alpha,\beta) \left( \frac{\epsilon\psi_2(\alpha)}{2\sqrt{\psi_1(\alpha)}}+\psi_1(\alpha)\right),
+    & & \hfun_{\beta}(\epsilon;\alpha,\beta) = -\frac{\Tcal(\epsilon;\alpha,\beta)}{\beta}, \nonumber \\
+    & \ufun_{\alpha}(\epsilon;\alpha,\beta) = \left( \frac{\epsilon\psi_2(\alpha)}{2\sqrt{\psi_1(\alpha)}}+\psi_1(\alpha)\right)+\frac{\psi_2(\alpha)}{2\psi_1(\alpha)},
+    & & \ufun_{\beta}(\epsilon;\alpha,\beta) = -\frac{1}{\beta}.\nonumber
+\end{align}
+The terms $\bg^{\textrm{rep}}$ and $\bg^{\textrm{corr}}$ are obtained after substituting these results in Eq.~\ref{eq:grep_gcorr}. We provide the final expressions in the Supplement. We remark here that the component of $\bg^{\textrm{corr}}$ corresponding to the derivative with respect to the rate equals zero, i.e., $\bg^{\textrm{corr}}_{\beta}=0$, meaning that the distribution of $\epsilon$ does not depend on the parameter $\beta$. Indeed, we can compute this distribution following Eq.~\ref{eq:q_eps} as
+\begin{equation}
+	q_{\epsilon}(\epsilon;\alpha,\beta)= \frac{e^{\alpha\psi(\alpha)}\sqrt{\psi_1(\alpha)}}{\Gamma(\alpha)} \exp\left(\epsilon\alpha\sqrt{\psi_1(\alpha)}-\exp\left( \epsilon\sqrt{\psi_1(\alpha)}+\psi(\alpha) \right)\right),\nonumber
+\end{equation}
+where we can verify that it does not depend on $\beta$.
+
+\parhead{Log-normal distribution.}
+For a log-normal distribution with location $\mu$ and scale $\sigma$, we can standardize the sufficient statistic $\log(z)$ as
+\begin{equation}
+	\epsilon=\Tcal^{-1}(z;\mu,\sigma)=\frac{\log(z)-\mu}{\sigma}.\nonumber
+\end{equation}
+This leads to a standard normal distribution on $\epsilon$, which does not depend on the variational parameters, and thus $\bg^{\textrm{corr}}=\bzero$. The auxiliary function $\hfun(\epsilon;\mu,\sigma)$, which is needed for $\bg^{\textrm{rep}}$, takes the form
+\begin{align}
+    & \hfun_{\mu}(\epsilon;\mu,\sigma) = \Tcal(\epsilon;\mu,\sigma),
+    & \hfun_{\sigma}(\epsilon;\mu,\sigma) = \epsilon\Tcal(\epsilon;\mu,\sigma). \nonumber
+\end{align}
+Thus, the reparameterization gradient is given in this case by
+\begin{align}
+    & \bg^{\textrm{rep}}_{\mu} = \E{q(z;\mu,\sigma)}{z\nabla_{z}f(\bz)},
+    & \bg^{\textrm{rep}}_{\sigma} = \E{q(z;\mu,\sigma)}{z\Tcal^{-1}(z;\mu,\sigma)\nabla_{z}f(\bz)}. \nonumber
+\end{align}
+This corresponds to \gls{ADVI} \citep{Kucukelbir2016} with a logarithmic transformation over a positive random variable, since the variational distribution over the transformed variable is Gaussian. For a general variational distribution, we recover \gls{ADVI} if the transformation makes $\epsilon$ Gaussian.
+
+\parhead{Beta distribution.}
+For a random variable $z\sim\textrm{Beta}(\alpha,\beta)$, we could rewrite $z=z_1^\prime/(z_1^\prime+z_2^\prime)$ for $z_1^\prime\sim\textrm{Gamma}(\alpha,1)$ and $z_2^\prime\sim\textrm{Gamma}(\beta,1)$, and apply the gamma reparameterization for $z_1^\prime$ and $z_2^\prime$. Instead, in the spirit of applying standardization directly over $z$, we define a transformation to standardize the logit function, $\logit{z}\triangleq\log(z/(1-z))$ (sum of sufficient statistics of the beta),
+\begin{equation}\nonumber
+	\epsilon=\Tcal^{-1}(z;\alpha,\beta)=\frac{\logit{z}-\psi(\alpha)+\psi(\beta)}{\sigma(\alpha,\beta)}.
+\end{equation}
+This ensures that $\epsilon$ has zero mean. We can set the denominator to the standard deviation of $\logit{z}$. However, for larger-scaled models we found better performance with a denominator $\sigma(\alpha,\beta)$ that makes $\bg^{\textrm{corr}}=\bzero$ for the currently drawn sample $z$ (see the Supplement for details), even though the variance of the transformed variable $\epsilon$ is not one in such case.\footnote{Note that this introduces some bias since we are ignoring the dependence of $\sigma(\alpha,\beta)$ on $z$.} The reason is that $\bg^{\textrm{corr}}$ suffers from high variance in the same way as the score function estimator does.
+
+%set the denominator to the standard deviation of $\logit{z}$, but for large-scale models we found better performance with a denominator $\sigma(\alpha,\beta)$ that makes $\bg^{\textrm{corr}}=\bzero$ for the currently drawn sample $z$ (see the Supplement for details), even though the variance of the transformed variable $\epsilon$ is not one in such case. The reason is that $\bg^{\textrm{corr}}$ suffers from high variance in the same way as the score function estimator does.
+
+%In contrast to the examples above, we do not specify the form of the denominator. Instead, we let $\sigma(\alpha,\beta)$ be a function of $\alpha$ and $\beta$, which is then chosen at each iteration to make $\bg^{\textrm{corr}}=\bzero$ for the currently drawn sample $z$ (see the Supplement for details). Although the variance of $\epsilon$ is not necessarily one, this transformation worked well in our experiments.
+
+\vspace*{-5pt}
+\subsection{Algorithm}
+\vspace*{-5pt}
+We now present our full algorithm for \gls{G-REP}. It requires the specification of the variational family and the transformation $\Tcal(\beps;\bv)$. Given these, the full procedure is summarized in Algorithm~\ref{alg:g-rep}.
+%
+We use the adaptive step-size sequence proposed by \citet{Kucukelbir2016}, which combines \textsc{rmsprop} \citep{Tieleman2012} and Adagrad \citep{Duchi2011}. Let $g_k^{(i)}$ be the $k$-th component of the gradient at the $i$-th iteration, and $\rho_k^{(i)}$ the step-size for that component. We set
+\begin{equation}\label{eq:step_schedule}
+  \rho_k^{(i)} = \eta \times i^{-0.5+\kappa}\times \left ( \tau + \sqrt{s_k^{(i)}} \right)^{-1},\qquad \textrm{with} \qquad s_k^{(i)} = \gamma (g_k^{(i)})^2 + (1-\gamma)s_k^{(i-1)},
+\end{equation}
+where we set $\kappa=10^{-16}$, $\tau=1$, $\gamma=0.1$, and we explore several values of $\eta$. Thus, we update the variational parameters as $\bv^{(i+1)} = \bv^{(i)} + \brho^{(i)}\circ\nabla_{\bv}\Lcal$, where `$\circ$' is the element-wise product.
+
+\begin{algorithm}[t]
+    \DontPrintSemicolon
+    \SetAlgoLined
+    \SetKwInOut{KwInput}{input}
+    \SetKwInOut{KwOutput}{output}
+    \KwInput{data $\bx$, probabilistic model $p(\bx,\bz)$, variational family $q(\bz;\bv)$, transformation $\bz=\Tcal(\beps;\bv)$}
+    \KwOutput{variational parameters $\bv$}
+    Initialize $\bv$\;
+    \Repeat{convergence}{
+      Draw a single sample $\bz\sim q(\bz;\bv)$\;
+      Compute the auxiliary functions $\hfun\left(\Tcal^{-1}(\bz;\bv);\bv\right)$ and $\ufun\left(\Tcal^{-1}(\bz;\bv);\bv\right)$ (Eq.~\ref{eq:hfun_ufun})\;
+      Estimate $\bg^{\textrm{rep}}$ and $\bg^{\textrm{corr}}$ (Eq.~\ref{eq:grep_gcorr}, estimate the expectation with one sample)\;
+      Compute (analytic) or estimate (Monte Carlo) the gradient of the entropy, $\nabla_{\bv}\ent{q(\bz;\bv)}$\;
+      Compute the noisy gradient $\nabla_{\bv}\Lcal$ (Eq.~\ref{eq:corrected_reparam})\;
+      Set the step-size $\brho^{(i)}$ (Eq.~\ref{eq:step_schedule}) and take a gradient step for $\bv$\; % (Eq.~\ref{eq:v_new})\;
+    }
+    \caption{Generalized reparameterization gradient algorithm\label{alg:g-rep}}
+\end{algorithm}
+
+
+
+
+\vspace*{-5pt}
+\subsection{Related work}
+\vspace*{-6pt}
+A closely related \gls{VI} method is \gls{ADVI}, which also relies on reparameterization and has been incorporated into Stan \citep{Kucukelbir2015,Kucukelbir2016}. \gls{ADVI} applies a transformation to the random variables such that their support is on the reals and then uses a Gaussian variational posterior on the transformed space. For instance, random variables that are constrained to be positive are first transformed through a logarithmic function and then a Gaussian variational approximating distribution is placed on the unconstrained space. Thus, \gls{ADVI} struggles to approximate probability densities with singularities, which are useful in models where sparsity is appropriate. In contrast, the \gls{G-REP} method allows to estimate the gradient for a wider class of variational distributions, including gamma and beta distributions, which are more appropriate to encode sparsity constraints.
+
+
+%Another related method is the variational autoencoder \citep{Kingma2014}, which expresses the variational distribution as a function of the observed data, known as the recognition model. This allows scalable training using stochastic gradient descent, analogously to a standard autoencoder. However, this approach can be sensitive to the choice of the recognition model, and it has only been demonstrated for Gaussian latent variables. Our generalized reparameterization gradient allows more complex recognition models.
+
+\citet{Schulman2015} also write the gradient in the form given in Eq.~\ref{eq:corrected_reparam} to automatically estimate the gradient through a backpropagation algorithm in the context of stochastic computation graphs. However, they do not provide additional insight into this equation, do not apply it to general \gls{VI}, do not discuss transformations for any distributions, and do not report experiments. Thus, our paper complements \citet{Schulman2015} and provides an off-the-shelf tool for general \gls{VI}.
+
