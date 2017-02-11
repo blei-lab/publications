@@ -1,0 +1,92 @@
+
+\section{Introduction}
+\label{sec:introduction}
+
+
+
+
+Variational inference is an umbrella term for algorithms that cast
+Bayesian inference as optimization~\citep{Jordan:1999}.  Originally
+developed in the 1990s, recent advances in variational inference have
+scaled Bayesian computation to massive
+data~\citep{Hoffman:2013}, provided black box strategies
+for generic inference in many models~\citep{Ranganath:2014}, and
+enabled more accurate approximations of a model's posterior without
+sacrificing efficiency~\citep{Rezende:2015,
+  ranganath2016hierarchical}.  These innovations have both scaled
+Bayesian analysis and removed the analytic burdens that have
+traditionally taxed its practice.
+
+Given a model of latent and observed variables $p(\mbx, \mbz)$, variational
+inference posits a family of distributions over its latent variables
+and then finds the member of that family closest to the posterior,
+$p(\mbz \g \mbx)$. This is typically formalized as minimizing a \gls{KL}
+divergence from the approximating family $q(\cdot)$ to the posterior
+$p(\cdot)$.  However, while the $\textsc{kl}(q \gg p)$ objective offers
+many beneficial computational properties, it is ultimately designed
+for convenience; it sacrifices many desirable statistical properties
+of the resultant approximation.
+
+When optimizing \gls{KL}, there are two issues with the posterior
+approximation that we highlight.  First, it typically underestimates the
+variance of the posterior.  Second, it can result in degenerate
+solutions that zero out the probability of certain configurations of
+the latent variables.  While both of these issues can be partially
+circumvented by using more expressive approximating families, they
+ultimately stem from the choice of the objective. Under the \gls{KL}
+divergence, we pay a large price when $q(\cdot)$ is
+big where $p(\cdot)$ is tiny; this price becomes infinite when $q(\cdot)$ has
+larger support than $p(\cdot)$.
+
+
+
+In this paper, we revisit variational inference from its core
+principle as an optimization problem. We use
+\textit{operators}---mappings from functions to functions---to design
+variational objectives, explicitly trading off computational
+properties of the optimization with statistical properties of the
+approximation.  We
+use operators to formalize the basic properties
+needed for variational inference algorithms. We
+further outline how to use them to define new
+variational objectives; as one example, we
+design a variational objective using a Langevin-Stein operator.
+
+We develop \glsreset{OPVI}\gls{OPVI}, a black box algorithm that optimizes any
+operator objective.  In the context of \gls{OPVI}, we show that the
+Langevin-Stein objective enjoys two good properties.  First, it is
+amenable to \textit{data subsampling}, which allows inference to scale to
+massive data.  Second, it permits rich approximating families, called
+\emph{variational programs}, which do not require analytically tractable
+densities. This greatly expands the class of variational families and
+the fidelity of the resulting approximation. (We note that the
+traditional \gls{KL} is not amenable to using variational programs.)
+We study \gls{OPVI} with the Langevin-Stein objective on a
+mixture model and a generative model of images.
+
+\parhead{Related Work.}  There are several threads of research in
+variational inference with alternative divergences.  An early example
+is \gls{EP}~\citep{minka2001expectation}.  \gls{EP} promises
+approximate minimization of the inclusive \gls{KL} divergence
+$\textsc{kl}(p || q)$ to find overdispersed approximations to the
+posterior.  \gls{EP} hinges on local minimization with respect to
+subsets of data and connects to work on $\alpha$-divergence
+minimization~\citep{minka2004power, hernandezlobato2015black}.
+However, it does not have convergence guarantees and typically does not
+minimize \gls{KL} or an $\alpha$-divergence because it is
+not a global optimization method. We note that these divergences can be
+written as operator variational objectives, but they do not satisfy
+the tractability criteria and thus require further approximations.
+\citet{li2016r} present a variant of $\alpha$-divergences that satisfy
+the full requirements of \gls{OPVI}.
+Score matching~\citep{hyvarinen2005estimation}, a method for
+estimating models
+by matching the score function of one distribution to another that can
+be sampled, also falls into the class of objectives we develop.
+
+
+Here we show how to construct new objectives, including
+some not yet studied. We make explicit the requirements to construct
+objectives for variational inference. Finally, we discuss further
+properties that make them amenable to both scalable and flexible
+variational inference.

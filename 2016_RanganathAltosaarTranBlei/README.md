@@ -1,0 +1,21 @@
+# Operator Variational Inference
+## Rajesh Ranganath, Jaan Altosaar, Dustin Tran, and David M. Blei, NIPS 2016
+
+Abstract
+--------
+
+Variational inference is an umbrella term for algorithms which cast Bayesian inference as optimization. Classically, variational inference uses the Kullback-Leibler divergence to define the optimization. Though this divergence has been widely used, the resultant posterior approximation can suffer from undesirable statistical properties. To address this, we reexamine variational inference from its roots as an optimization problem. We use operators, or functions of functions, to design variational objectives. As one example, we design a variational objective with a Langevin-Stein operator. We develop a black box algorithm, operator variational inference (OPVI), for optimizing any operator objective. Importantly, operators enable us to make explicit the statistical and computational tradeoffs for variational inference. We can characterize different properties of variational objectives, such as objectives that admit data subsampling—allowing inference to scale to massive data—as well as objectives that admit variational programs—a rich class of posterior approximations that does not require a tractable density. We illustrate the benefits of OPVI on a mixture model and a generative model of images.
+
+Paper
+-----
+
+The citation for this paper is:
+
+```
+@inproceedings{ranganath2016operator,
+  author = {Ranganath, Rajesh and Altosaar, Jaan and Tran, Dustin and Blei, David M.},
+  title = {Operator Variational Inference},
+  booktitle = {Neural Information Processing Systems},
+  year = {2016}
+}
+```

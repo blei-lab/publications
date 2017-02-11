@@ -1,0 +1,125 @@
+\section{Operator Variational Inference}
+\label{sec:inference}
+\glsresetall
+
+We described operator variational objectives, a broad class of
+objectives for variational inference.
+We now examine how it can be optimized.
+We develop a black box algorithm~\citep{Wingate:2013, Ranganath:2014}
+based on Monte Carlo estimation and stochastic optimization.
+Our algorithm applies to a general class of models and any
+operator objective.
+
+Minimizing the operator objective involves two optimizations:
+minimizing the objective with respect to the approximating family
+$\cQ$ and maximizing the objective with respect to the function class
+$\cF$ (which is part of the objective).
+
+We index the family $\cQ$
+with \textit{variational parameters} $\lambda$ and require that it
+satisfies properties typically assumed by black box
+methods~\citep{Ranganath:2014}: the variational distribution $q(\mbz ;
+\lambda)$ has a known and tractable density; we can sample from
+$q(\mbz ; \lambda)$; and we can tractably compute the score function
+$\nabla_\lambda \log q(\mbz ; \lambda)$.
+We index the function class $\cF$ with parameters $\theta$, and
+require that $f_\theta(\cdot)$ is differentiable. In the experiments,
+we
+use neural networks, which are flexible enough to approximate a
+general family of test functions~\citep{Hornik:1989}.
+
+Given parameterizations of the variational family and test family,
+\gls{OPVI} seeks to solve a minimax problem,
+\begin{align}
+  \mblambda^* = \inf_\mblambda \, \sup_{\mbtheta} \, t(\E_{\mblambda} [(O^{p,q} f_\mbtheta)(\mbz)]).
+\end{align}
+We will use stochastic optimization~\citep{Robbins:1951,Kushner:1997}.
+In principle, we can find stochastic gradients of $\mblambda$ by
+rewriting the objective in terms of the optimized value of $\mbtheta$,
+$\mbtheta^*(\mblambda)$. In practice, however, we simultaneously solve
+the maximization and minimization. Though computationally
+beneficial, this produces saddle points. In our experiments we found
+it to be stable enough.
+We derive gradients
+for the variational parameters $\mblambda$ and test function
+parameters $\mbtheta$.  (We fix the distance function to be
+the square $t(a) = a^2$; the identity $t(a)=a$ also readily
+applies.)
+
+\parhead{Gradient with respect to $\mblambda$.}  For a fixed test
+function with parameters $\mbtheta$, denote the objective
+$$\cL_{\mbtheta} = t(\E_{\mblambda} [(O^{p,q} \, f_\mbtheta)(\mbz)]).$$  The
+gradient with respect to variational parameters $\mblambda$ is
+\begin{align*}
+  \nabla_\mblambda  \cL_{\mbtheta} =
+  2~\E_{\mblambda} [(O^{p,q} \, f_\mbtheta)(\mbz)]~\nabla_\mblambda
+  \E_{\mblambda} [(O^{p,q} \, f_\mbtheta)(\mbz)].
+\end{align*}
+Now write the second expectation with the score function
+gradient~\citep{Ranganath:2014}. This gradient is
+\begin{align}
+  \nabla_\mblambda  \cL_{\mbtheta} =
+  2~\E_{\mblambda} [(O^{p,q} \, f_\mbtheta)(\mbz)]~\E_{\mblambda}
+  [\nabla_\mblambda \log q(\mbz ; \mblambda) (O^{p,q} \,
+  f_\mbtheta)(\mbz) + \nabla_\mblambda (O^{p,q} \, f_\mbtheta)(\mbz)].
+  \label{eq:grad-lambda}
+\end{align}
+\Cref{eq:grad-lambda} lets us calculate unbiased stochastic
+gradients. We first generate two sets of independent samples from
+$q$; we then form Monte Carlo estimates of the first and second
+expectations. For the second expectation, we can use the variance
+reduction techniques developed for black box variational inference,
+such as Rao-Blackwellization~\citep{Ranganath:2014}.
+
+We described the score gradient because it is general.  An alternative
+is to use the reparameterization gradient for the second
+expectation~\citep{Kingma:2014,Rezende:2014}.  It requires that the
+operator be differentiable with respect to $\mbz$ and that samples
+from $q$ can be drawn as a transformation $r$ of a parameter-free
+noise source $\mbepsilon$, $\mbz = r(\mbepsilon, \mblambda)$.  In our
+experiments, we use the reparameterization gradient.
+
+
+\parhead{Gradient with respect to $\mbtheta$.}
+Mirroring the notation above, the operator objective for fixed
+variational $\mblambda$ is
+\begin{align*}
+  \cL_{\mblambda} = t(\E_{\mblambda} [(O^{p,q} \, f_\mbtheta)(\mbz)]).
+\end{align*}
+The gradient with respect to test function parameters $\mbtheta$ is
+\begin{align}
+  \nabla_\mbtheta  \cL_{\mblambda} = 2~\E_{\mblambda} [(O^{p,q}
+  f_\mbtheta)(\mbz)]~\E_{\mblambda}[\nabla_\mbtheta O^{p,q} \, f_\mbtheta(\mbz)].
+\label{eq:grad-theta}
+\end{align}
+Again, we can construct unbiased stochastic gradients with two sets of
+Monte Carlo estimates.
+Note that gradients for the test function do not require score
+gradients (or reparameterization gradients) because the expectation
+does not depend on $\mbtheta$.
+
+\parhead{Algorithm.}  \Cref{alg:operator_vi} outlines \gls{OPVI}.  We
+simultaneously minimize the variational objective with respect to the
+variational family $q_\mblambda$ while maximizing it with respect to the
+function class $f_\mbtheta$.  Given a model, operator, and function
+class parameterization, we can use automatic differentiation to
+calculate the necessary gradients~\citep{carpenter2015stan}.  Provided
+the operator does not require model-specific computation, this
+algorithm satisfies the black box criteria.
+
+\begin{algorithm}[t]
+\SetKwInOut{Input}{Input}
+\SetKwInOut{Output}{Output}
+\Input{Model $\log p(\mbx, \mbz)$, variational approximation $q(z ; \mblambda)$}
+\Output{Variational parameters $\mblambda$}
+Initialize $\mblambda$ and $\mbtheta$ randomly. \\
+\While{not converged}{
+  Compute unbiased estimates of $\nabla_{\mblambda} \cL_{\mbtheta}$ from
+  \Cref{eq:grad-lambda}.\\
+  Compute unbiased esimates of $\nabla_{\mbtheta} \cL_{\mblambda}$ from
+  \Cref{eq:grad-theta}. \\
+  Update $\mblambda$, $\mbtheta$ with unbiased stochastic gradients.\\
+ }
+ \caption{\Glsfirst{OPVI}}
+ \label{alg:operator_vi}
+\end{algorithm}

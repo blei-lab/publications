@@ -1,0 +1,166 @@
+% FONTS
+\usepackage[T1]{fontenc}
+\usepackage{tgtermes}
+\usepackage{amsmath}
+\usepackage{enumitem}
+
+% Font choice 1:
+\usepackage[subscriptcorrection,
+           amssymbols,
+           mtpbb,
+           mtpcal,
+           nofontinfo  % suppresses all warnings
+          ]{mtpro2}
+
+% Font choice 2:
+%\usepackage[scaled=0.92]{PTSans}
+%\usepackage{amssymb}
+%\newcommand{\mathbold}[1]{\ensuremath{\boldsymbol{\mathbf{#1}}}}
+%\newcommand{\mbf}[1]{\ensuremath{\boldsymbol{\mathbf{#1}}}}
+%\newcommand{\hmbtheta}{\mathbold{\widehat{\theta}}}
+%\newcommand{\hb}{\mathbold{\widehat{b}}}
+%\newcommand{\hB}{\mathbold{\widehat{B}}}
+%\newcommand{\hbP}{\mathbold{\widehat{P}}}
+
+\usepackage{scalefnt,letltxmacro}
+\LetLtxMacro{\oldtextsc}{\textsc}
+\renewcommand{\textsc}[1]{\oldtextsc{\scalefont{1.10}#1}}
+
+% \renewcommand*\ttdefault{lmvtt}
+\usepackage[ttdefault=true]{AnonymousPro}
+
+% GEOMETRY
+%\usepackage[
+%  paper  = letterpaper,
+%  left   = 1.65in,
+%  right  = 1.65in,
+%  top    = 1.0in,
+%  bottom = 1.0in,
+%  ]{geometry}
+
+% COLOR
+\usepackage[usenames,dvipsnames]{xcolor}
+\definecolor{shadecolor}{gray}{0.9}
+
+% SPACING and TEXT
+%\usepackage[final,expansion=alltext]{microtype}
+\usepackage[english]{babel}
+\usepackage[parfill]{parskip}
+\usepackage{afterpage}
+\usepackage{framed}
+
+%redefine the leftbar environment to accept a width and coloring options
+\renewenvironment{leftbar}[1][\hsize]
+{%
+  \def\FrameCommand
+  {%
+    {\color{Gray}\vrule width 3pt}%
+    \hspace{10pt}%
+    %\hspace{0pt}\fboxsep=\FrameSep\colorbox{black!10}%
+  }%
+  \MakeFramed{\hsize#1\advance\hsize-\width\FrameRestore}%
+}%
+{\endMakeFramed}
+
+% define a paragraph header function
+\DeclareRobustCommand{\parhead}[1]{\textbf{#1}~}
+
+% EDITING
+% line numbering in left margin
+\usepackage{lineno}
+\renewcommand\linenumberfont{\normalfont
+
+             \footnotesize
+                             \sffamily
+                             \color{SkyBlue}}
+% ragged paragraphs in right margin
+\usepackage{ragged2e}
+\DeclareRobustCommand{\sidenote}[1]{\marginpar{
+                                    \RaggedRight
+                                    \textcolor{Plum}{\textsf{#1}}}}
+% paragraph counter in right margin
+\newcommand{\parnum}{\bfseries\P\arabic{parcount}}
+\newcounter{parcount}
+\newcommand\p{%
+    \stepcounter{parcount}%
+    \leavevmode\marginpar[\hfill\parnum]{\parnum}%
+}
+% paragraph helper
+\DeclareRobustCommand{\PP}{\textcolor{Plum}{\P} }
+
+% COUNTERS
+\renewcommand{\labelenumi}{\color{black!67}{\arabic{enumi}.}}
+\renewcommand{\labelenumii}{{\color{black!67}(\alph{enumii})}}
+\renewcommand{\labelitemi}{{\color{black!67}\textbullet}}
+
+% FIGURES
+\usepackage{graphicx}
+\usepackage[labelfont=bf]{caption}
+\usepackage[format=hang]{subcaption}
+
+% TABLES
+\usepackage{booktabs}
+
+% ALGORITHMS
+\usepackage[algoruled]{algorithm2e}
+\usepackage{listings}
+\usepackage{fancyvrb}
+\fvset{fontsize=\normalsize}
+
+% BIBLIOGRAPHY
+\usepackage[numbers]{natbib}
+
+% HYPERREF
+\usepackage[colorlinks,linktoc=all]{hyperref}
+%\usepackage[all]{hypcap}
+\hypersetup{citecolor=Blue}
+\hypersetup{linkcolor=MidnightBlue}
+\hypersetup{urlcolor=MidnightBlue}
+
+% ##### CLEVERREF
+\usepackage[nameinlink]{cleveref}
+\creflabelformat{equation}{#1#2#3}
+
+% CLEVEREF alternative
+\newcommand{\myeqp}[1]{Eq.\ref{eq:#1}}
+\newcommand{\mysec}[1]{Section~\ref{sec:#1}}
+\newcommand{\mytable}[1]{Table~\ref{table:#1}}
+\newcommand{\myfig}[1]{Figure~\ref{fig:#1}}
+\newcommand{\myappendix}[1]{Appendix \ref{appendix:#1}}
+\newcommand{\myalg}[1]{Algorithm~\ref{alg:#1}}
+
+% ACRONYMS
+\usepackage
+[acronym,smallcaps,nowarn,section,nogroupskip,nonumberlist]{glossaries}
+\glsdisablehyper{}
+% \makeglossaries
+
+% COLOR DEFINITIONS
+\newcommand{\red}[1]{\textcolor{BrickRed}{#1}}
+\newcommand{\orange}[1]{o\textcolor{BurntOrange}{#1}}
+\newcommand{\green}[1]{\textcolor{OliveGreen}{#1}}
+\newcommand{\blue}[1]{\textcolor{MidnightBlue}{#1}}
+\newcommand{\gray}[1]{\textcolor{black!60}{#1}}
+
+% LISTINGS DEFINTIONS
+\lstdefinestyle{mystyle}{
+    commentstyle=\color{OliveGreen},
+    keywordstyle=\color{BurntOrange},
+    numberstyle=\tiny\color{black!60},
+    stringstyle=\color{MidnightBlue},
+    basicstyle=\ttfamily,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+%\usepackage{titlesec}
+%\titlespacing*{\section}{0pt}{1.1\baselineskop}{\baselineskip}

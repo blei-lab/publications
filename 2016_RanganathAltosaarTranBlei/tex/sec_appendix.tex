@@ -1,0 +1,119 @@
+\appendix
+
+\section{Technical Conditions for Langevin-Stein Operators}
+\label{sec:zero_conditions}
+Here we establish the conditions needed on the function class $\cF$ or the
+posterior distribution shorthanded $p$ for the operators to have expectation zero
+for all $f \in \cF$. W derive properties using integration by parts
+for supports that are bounded open sets. Then we extend the result
+to unbounded supports using limits. We start with the Langevin-Stein operator. Let $S$ be the
+set over which we integrate and let $B$ be its boundary. Let $v$ be the unit normal to
+the surface $B$, and $v_i$ be the $i$th component of the surface normal (which is
+$d$ dimensional). Then we have that
+\begin{align*}
+\int_S p  &(O^{p}_\textsc{LS}  \, f) dS =  \int_S p \nabla_z \log p^\top f + p \nabla^\top f dS
+\\
+&= \sum_{i=1}^d \int_S \frac{\partial}{\partial{z_i}}[p] f_i + p \frac{\partial}{\partial{z_i}}[f_i]dS
+\\
+&= \sum_{i=1}^d \int_S \frac{\partial}{\partial{z_i}}[p] f_idS + \int_B f_i p v_i dB - \int_S \frac{\partial}{\partial{z_i}}[p] f_idS
+\\
+&= \int_B v^\top f p dB.
+\end{align*}
+A sufficient condition for this expectation to be zero is that either $p$ goes to zero at its boundary or that the vector field $f$ is zero at the boundary.
+
+
+For unbounded sets, the result can be written as a limit for a sequence of increasing sets $S_n \to S$ and a set of boundaries $B_n \to B$ using the dominated convergence theorem~\citep{Cinlar:2011}.
+To use dominated convergence, we establish absolute integrability. Sufficient conditions for absolute integrability of the Langevin-Stein operator are for the gradient of $\log p$ to be bounded and the vector field $f$ and its derivatives to be bounded. Via dominated convergence, we get that $\lim_n \int_{B_n} v^\top f p dB = 0$ for the Langevin-Stein operator to have expectation zero.
+
+\section{Characterizing the zeros of the Langevin-Stein Operators}
+\label{sec:optimal_operator}
+We provide analysis on how to characterize the equivalence class of
+distributions defined as $(O^{p,q}f)(z) = 0$. One general condition for
+equality in distribution comes from equality in probability on all Borel sets.
+We can build functions that have expectation zero with respect to the posterior
+that test this equality.
+Formally, for any Borel set $A$ with $\delta_A$ being the indicator, these functions on $A$ have the form:
+\begin{align*}
+\delta_{A}(\mbz) - \int_A p(\mby) d\mby
+\end{align*}
+We show that if the Langevin-Stein operator
+satisfies $\cL(q ; O^{p}_\textsc{LS}, \cF) = 0$, then $q$ is equivalent to $p$
+in distribution. We do this by showing the above functions are in the span of $O^{p}_\textsc{LS}$.
+Expanding the Langevin-Stein operator we have
+\begin{align*}
+(O^{p}_\textsc{LS}  \, f)  =  p^{-1} \nabla_z p^\top f + \nabla^\top f
+= p^{-1} \sum_{i=1}^d  \frac{\partial{f_i p}}{{\partial z_i}}.
+\end{align*}
+Setting this equal to the desired function above yields the differential equation
+\begin{align*}
+\delta_{A}(z) -  \int_A p(y) dy
+= p^{-1}(z) \sum_{i=1}^d  \frac{\partial{f_i p}}{{\partial z_i}}(z).
+\end{align*}
+To solve this, set $f_i = 0$ for all but $i=1$. This yields
+\begin{align*}
+\delta_{A}(z) -  \int_A p(y) dy
+= p^{-1}(z) \frac{\partial{f_1 p}}{{\partial z_1}}(z),
+\end{align*}
+which is an ordinary differential equation with solution for $f_1$
+\begin{align*}
+f_1^A(z) = \frac{1}{p(z)} \int\limits_{-\infty}^{z_1} p(a, z_{2...d}) \left(\delta_{A}(a, z_{2...d}) -  \int_A p(\mby) d\mby \right) da.
+\end{align*}
+This function is differentiable with respect to $z_1$, so this gives the desired result. Plugging the function back into the operator variational objective gives
+\begin{align*}
+\E_q\left[\delta_{A}(\mbz) -  \int_A p(\mby) d\mby\right] = 0 \iff \E_q[\delta_{A}(\mbz)] = \E_p[\delta_{A}(\mbz)],
+\end{align*}
+for all Borel measurable $A$. This implies the induced distance captures total variation.
+
+
+\section{Operators for Discrete Variables}
+\label{sec:discrete_vars}
+Some operators based on Stein's method
+are applicable only for latent variables in a continuous space. There are Stein
+operators that work with discrete variables~\citep{Assaraf:1999,Ley:2011b}.
+We present one amenable to operator variational objectives based on a discrete analogue to the Langevin-Stein operator developed in~\cite{Ley:2011b}. For simplicity, consider a one-dimensional
+discrete posterior with support $\{0, ..., c\}$. Let $f$ be a function
+such that $f(0) = 0$, then an operator can be defined as
+\begin{align*}
+(O^{p}_\textsc{discrete} \, f)(z) = \frac{f(z + 1) p(z + 1, \mbx) - f(z) p(z , \mbx)}{p(z, \mbx)}.
+\end{align*}
+Since the expectation of this operator with respect to the posterior $p(z \g x)$
+is a telescoping sum with both endpoints $0$,
+it has expectation zero.
+
+This relates to the Langevin-Stein operator in the following. The Langevin-Stein operator in one dimension can be written as
+\begin{align*}
+(O^{p}_\textsc{LS}  \, f)  =  \frac{\frac{d}{dz}[f p]}{p}.
+\end{align*}
+This operator is the discrete analogue as the differential is replaced by
+a discrete difference. We can extend this operator to multiple dimensions
+by an ordered indexing. For example, binary numbers of length $n$ would work for $n$ binary
+latent variables.
+
+
+
+
+
+\section{Proof of Universal Representations}
+\label{sec:universal_representation}
+
+Consider the optimal form of $R$ such that transformations of standard
+normal draws are equal in distribution to exact draws from the
+posterior. This means
+\begin{equation*}
+R(\mbepsilon;\mblambda) = P^{-1}(\Phi(\mbepsilon)),
+\end{equation*}
+where $\Phi(\mbepsilon)$ squashes the draw from a standard normal such that it
+is equal in distribution to a uniform random variable. The posterior's inverse cumulative distribution function $P^{-1}$ is applied to the uniform draws. The transformed samples are now equivalent to exact samples
+from the posterior. For a rich-enough parameterization of $R$, we may hope
+to sufficiently approximate this function.
+
+Indeed, as in
+the universal approximation theorem of \citet{tran2016variational}
+there exists a sequence of parameters $\{\lambda_1,\lambda_2,\ldots\}$ such that the operator
+variational objective goes to zero, but the function class is no longer limited
+to local interpolation. Universal approximators like neural networks~\citep{Hornik:1989}
+also work. Further, under the assumption that $p$ is the unique root and by
+satisfying the conditions described in \mysec{optimal_operator} for equality in
+distribution, this implies that the variational program given by
+drawing $\mbepsilon\sim\mathcal{N}(\mb{0},\mbI)$ and applying
+$R(\mbepsilon)$ converges in distribution to $p(\mbz\g\mbx)$.

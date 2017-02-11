@@ -1,0 +1,99 @@
+
+\subsection{Data Subsampling and \gls{OPVI}}
+
+With stochastic optimization, data subsampling scales up
+traditional variational inference to massive
+data~\citep{Hoffman:2013,Titsias:2014}.  The idea is to calculate
+noisy gradients by repeatedly subsampling from the data set,
+without needing to pass through the entire data set for each
+gradient.
+
+An as illustration, consider hierarchical models. Hierarchical models consist of global latent
+variables $\beta$ that are shared across data points and local latent
+variables $z_i$ each of which is associated to a data point $x_i$.
+The model's log joint density is
+\begin{align*}
+  \log p(x_{1:n}, z_{1:n}, \beta)
+  = \log p(\beta) +
+  \sum_{i=1}^n\Big[\log p(x_i \g z_i, \beta) + \log p(z_i \g \beta)\Big].
+\end{align*}
+\citet{Hoffman:2013} calculate unbiased estimates of the log joint
+density (and its gradient) by subsampling data and appropriately
+scaling the sum.
+
+We can characterize whether \gls{OPVI} with a particular operator
+supports data subsampling.  \gls{OPVI} relies on evaluating the
+operator and its gradient at different realizations of the latent
+variables (\Cref{eq:grad-lambda} and \Cref{eq:grad-theta}). Thus we
+can subsample data to calculate estimates of the operator when it
+derives from linear operators of the log density, such as
+differentiation and the identity.  This follows as a linear operator
+of sums is a sum of linear operators, so the gradients in
+~\Cref{eq:grad-lambda} and~\Cref{eq:grad-theta} decompose into a sum. The \acrlong{LS}
+and \acrshort{KL} operator
+are both linear in the log density; both
+support data subsampling.
+
+\subsection{Variational Programs}
+
+Given an operator and variational family, \Cref{alg:operator_vi} optimizes the
+corresponding operator objective.
+Certain operators require the density of $q$.  For example, the
+\acrshort{KL} operator (\Cref{eq:KL-operator}) requires its log
+density.  This potentially limits the construction of rich variational
+approximations for which the density of $q$ is difficult to
+compute.\footnote{It is possible to construct rich approximating
+  families with $\textsc{kl}(q || p)$, but this requires the introduction
+  of an auxiliary distribution~\citep{maaloe2016auxiliary}.}
+
+Some
+operators, however, do not depend on having a analytic density; the
+\gls{LS} operator (\Cref{eq:lang-stein}) is an example.  These
+operators can be used with a much richer class of variational
+approximations, those that can be sampled from but might not have
+analytically tractable densities.  We call such approximating families
+\emph{variational programs}.
+
+
+Inference with a variational program requires the family to be
+reparameterizable~\citep{Kingma:2014,Rezende:2014}.  (Otherwise we
+need to use the score function, which requires the derivative of the
+density.) A reparameterizable variational program consists of a
+parametric deterministic transformation $R$ of random noise $\mbepsilon$. Formally, let
+\begin{align}
+\mbepsilon \sim \textrm{Normal}(0, 1), \quad \mbz = R(\mbepsilon; \mblambda).
+\label{eq:reparam-var-program}
+\end{align}
+This generates samples for $\mbz$, is differentiable with respect to
+$\mblambda$, and its density may be intractable. For operators that do
+not require the density of $q$, it can be used as a powerful variational
+approximation. This is in contrast to the standard \gls{KL} operator.
+
+As an example, consider the following variational program
+for a one-dimensional random variable. Let $\lambda_i$ denote the $i$th
+dimension of $\mblambda$ and make the corresponding definition for $\mbepsilon$:
+\begin{align}
+z = (\epsilon_3 > 0) R(\epsilon_1; \lambda_1) - (\epsilon_3 \leq 0) R(\epsilon_2; \lambda_2).
+\label{eq:toy_var_prog}
+\end{align}
+When $R$ outputs positive values, this separates the parametrization
+of the density to the positive and negative halves of the reals; its
+density is generally intractable.  In \Cref{sec:experiments}, we will
+use this distribution as a variational approximation.
+
+\Cref{eq:reparam-var-program} contains many densities when the function
+class $R$ can approximate arbitrary continuous functions.  We state it
+formally.  \vspace{0.05in}
+\begin{theorem}
+  Consider a posterior distribution $p(\mbz\g\mbx)$ with a finite
+  number of latent variables and continuous quantile function.  Assume
+  the operator variational objective has a unique root at the
+  posterior $p(\mbz\g\mbx)$ and that $R$ can approximate continuous
+  functions.  Then there exists a sequence of parameters
+  $\lambda_1,\lambda_2\ldots,$ in the variational program, such that
+  the operator variational objective converges to $0$, and thus $q$
+  converges in distribution to $p(\mbz\g\mbx)$.
+\end{theorem}
+This theorem says that we can use variational programs with an
+appropriate $q$-independent operator to approximate continuous
+distributions.  The proof is in Appendix D.

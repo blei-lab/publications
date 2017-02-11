@@ -1,0 +1,25 @@
+
+\section{Summary}
+\label{sec:discussion}
+
+We present operator variational objectives, a broad yet tractable
+class of optimization problems for approximating posterior
+distributions.  Operator objectives are built from an operator, a
+family of test functions, and a distance function.  We outline the
+connection between operator objectives and existing divergences such
+as the KL divergence, and develop a new variational objective using
+the Langevin-Stein operator.  In general, operator objectives produce
+new ways of posing variational inference.
+
+Given an operator objective, we develop a black box algorithm for
+optimizing it and show which operators allow scalable optimization
+through data subsampling.  Further, unlike the popular evidence lower
+bound, not all operators explicitly depend on the approximating
+density. This permits flexible approximating families, called
+variational programs, where the distributional form is not
+tractable. We demonstrate this approach on a mixture model and a
+factor model of images.
+
+There are several possible avenues for future directions such as
+developing new variational objectives, adversarially learning~\citep{goodfellow2014generative} model parameters with operators, and
+learning model parameters with operator variational objectives.

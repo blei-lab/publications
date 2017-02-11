@@ -1,0 +1,83 @@
+\documentclass{article}
+\usepackage[final, nonatbib]{nips_2016}
+
+\input{preamble/preamble.tex}
+\input{preamble/preamble_tikz.tex}
+\input{preamble/preamble_math.tex}
+\input{preamble/preamble_acronyms}
+
+\title{Operator Variational Inference}
+
+\author{%
+Rajesh Ranganath \\
+Princeton University \\
+\And
+Jaan Altosaar \\
+Princeton University\\
+\And
+Dustin Tran \\
+Columbia University \\
+\And
+David M.~Blei \\
+Columbia University
+}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Variational inference is an umbrella term for algorithms which cast
+Bayesian inference as optimization.
+Classically, variational inference uses the Kullback-Leibler
+divergence to define the optimization.
+Though
+this divergence has been widely used, the resultant posterior approximation
+can suffer from undesirable statistical properties. To address this, we
+reexamine
+variational inference from its roots as an optimization problem. We use
+\textit{operators}, or functions of functions, to design variational
+objectives.
+As one example,
+we design a
+variational objective
+with a Langevin-Stein operator.
+We develop
+a black box algorithm, \gls{OPVI},
+for optimizing any operator objective.
+Importantly, operators enable us to make explicit the statistical and
+computational tradeoffs for variational inference.
+We can characterize different properties of variational objectives, such as
+objectives that admit \emph{data
+subsampling}---allowing inference to scale to massive data---as well as
+objectives that admit
+\emph{variational programs}---a rich class of posterior approximations that
+does not require a tractable density.
+We illustrate the benefits of \gls{OPVI} on a
+mixture model and a generative model of images.
+\end{abstract}
+
+\input{sec_intro}
+\input{sec_objectives}
+\input{sec_inference}
+\input{sec_extensions}
+\input{sec_experiments}
+\input{sec_discussion}
+
+\parhead{Acknowledgments.}
+This work is supported by NSF IIS-1247664,  ONR
+N00014-11-1-0651, DARPA FA8750-14-2-0009, DARPA
+N66001-15-C-4032, Adobe, NSERC PGS-D, Porter Ogden Jacobus Fellowship,
+Seibel Foundation, and the Sloan Foundation. The authors would
+like to thank Dawen Liang, Ben Poole, Stephan Mandt, Kevin Murphy, Christian
+Naesseth,
+and the anonymous reviews for their helpful feedback and comments.
+
+\bibliographystyle{apalike}
+{\small
+\bibliography{bib}
+}
+
+
+
+\end{document}
+

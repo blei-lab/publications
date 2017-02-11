@@ -1,0 +1,206 @@
+
+\section{Operator Variational Objectives}
+
+We define operator variational objectives and the conditions needed
+for an objective to be useful for variational inference. We develop a
+new objective, the Langevin-Stein objective, and show how to place
+the classical \gls{KL} into this class.  In the next section, we
+develop a general algorithm for optimizing operator variational
+objectives.
+
+\subsection{Variational Objectives}
+
+Consider a probabilistic model $p(\mbx, \mbz)$ of data $\mbx$ and
+latent variables $\mbz$.  Given a data set $\mbx$, approximate Bayesian
+inference seeks to approximate the posterior distribution
+$p(\mbz \g \mbx)$, which is applied in all downstream tasks.
+Variational inference posits a family of approximating distributions
+$q(\mbz)$ and optimizes a divergence function to find the member of
+the family closest to the posterior.
+
+The divergence function is the \textit{variational objective}, a
+function of both the posterior and the approximating
+distribution. Useful variational objectives hinge on two properties:
+first, optimizing the function yields a good posterior approximation;
+second, the problem is tractable when the posterior distribution is
+known up to a constant.
+
+The classic construction that satisfies these properties is the \gls{ELBO},
+\begin{align}
+  \mathbb{E}_{q(\mbz)}[\log p(\mbx, \mbz) - \log q(\mbz)].
+  \label{eq:elbo}
+\end{align}
+It is maximized when $q(\mbz)=p(\mbz \g \mbx)$ and it only depends on
+the posterior distribution up to a tractable constant,
+$\log p(\mbx, \mbz)$.  The \gls{ELBO} has been the focus in much of
+the classical literature.  Maximizing the \gls{ELBO} is equivalent to
+minimizing the \gls{KL} divergence to the posterior, and the
+expectations are analytic for a large class of
+models~\citep{Ghahramani:2001}.
+
+
+\subsection{Operator Variational Objectives}
+
+We define a new class of variational objectives, \textit{operator
+  variational objectives}.  An operator objective has three
+components.  The first component is an operator $O^{p,q}$ that depends
+on $p(\mbz\g \mbx)$ and $q(\mbz)$. (Recall that an operator maps functions to
+other functions.)  The second component is a family of test functions
+$\cF$, where each $f(z) \in \cF$ maps realizations of the latent
+variables to real vectors $\mathbb{R}^d$.  In the objective, the
+operator and a function will combine in an expectation
+$\E_{q(\mbz)}[(O^{p,q}\, f )(\mbz)]$, designed such that values close to zero
+indicate that $q$ is close to $p$.  The third component is a distance function
+$t(a):\mathbb{R} \rightarrow [0, \infty)$, which is applied to the
+expectation so that the objective is non-negative. (Our example
+uses the square function $t(a)=a^2$.)
+
+These three components combine to form the operator variational
+objective.  It is a non-negative function of the variational
+distribution,
+\begin{align}
+  \cL(q ; O^{p,q}, \cF, t) =
+  \sup_{f \in \cF}
+  t(\E_{q(\mbz)}[(O^{p,q} \, f)(\mbz)]).
+  \label{eq:operator-obj}
+\end{align}
+Intuitively, it is the worst-case expected value among all
+test functions $f\in\cF$.  Operator variational inference seeks to minimize
+this objective with respect to the variational family $q\in\cQ$.
+
+We use operator objectives for posterior inference.  This
+requires two conditions on the operator and function family.
+\begin{enumerate}[leftmargin=*]
+\item \emph{Closeness}.  The minimum of the variational objective is
+  at the posterior, $q(\mbz)=p(\mbz\g \mbx)$.  We meet this condition by
+  requiring that $\E_{p(\mbz\g \mbx)}[(O^{p,p} \, f)(\mbz)]=0$ for all $f \in \cF$.
+  Thus, optimizing the objective will produce $p(\mbz\g \mbx)$ if it is the
+  only member of $\cQ$ with zero expectation (otherwise it will
+  produce a distribution in the equivalence class: $q \in \cQ$ with
+  zero expectation).  In practice, the minimum will be the closest
+  member of $\cQ$ to $p(\mbz \g \mbx)$.
+
+\item \emph{Tractability}.  We can calculate the variational objective
+  up to a constant without involving the exact posterior
+  $p(\mbz\g \mbx)$.  In other words, we do not require calculating the
+  normalizing constant of the posterior, which is typically
+  intractable. We meet this condition by requiring that the operator
+  $O^{p,q}$---originally in terms of $p(\mbz\g \mbx)$ and
+  $q(\mbz)$---can be written in terms of $p(\mbx, \mbz)$ and
+  $q(\mbz)$.  Tractability also imposes conditions on $\cF$: it must
+  be feasible to find the supremum.  Below, we satisfy this by
+  defining a parametric family for $\cF$ that is amenable to
+  stochastic optimization.
+
+
+\end{enumerate}
+\Cref{eq:operator-obj} and the two conditions provide a mechanism to
+design meaningful variational objectives for posterior inference.
+Operator variational objectives try to match expectations with respect
+to $q(\mbz)$ to those with respect to $p(\mbz\g \mbx)$.
+
+
+\subsection{Understanding Operator Variational Objectives}
+
+Consider operators where $\E_{q(\mbz)}[(O^{p,q} \, f)(\mbz)]$ only
+takes positive values. In this case, distance to zero can be measured
+with the identity $t(a)=a$, so tractability implies the operator need
+only be known up to a constant.  This family includes tractable forms
+of familiar divergences like the \gls{KL} divergence (\gls{ELBO}), R\'enyi's
+$\alpha$-divergence~\citep{li2016r}, and the
+$\chi$-divergence~\citep{nielsen2013chi}.
+
+When the expectation can take positive or negative values, operator
+variational objectives are closely related to Stein
+divergences~\citep{Barbour:1988}. Consider a family of scalar test
+functions $\cF^*$ that have expectation zero with respect to the
+posterior, $\E_{p(\mbz \g \mbx)}[f^*(\mbz)] = 0$.  Using this family,
+a \textit{Stein divergence} is
+\begin{align*}
+  D_{\textrm{Stein}}(p, q) =
+  \sup_{f^* \in \cF^*} |\E_{q(\mbz)}[f^*(\mbz)] - \E_{p(\mbz\g \mbx)}[f^*(\mbz)]|.
+\end{align*}
+Now recall the operator objective of \Cref{eq:operator-obj}.  The
+closeness condition implies that
+\begin{align*}
+  \cL(q ; O^{p,q}, \cF, t) = \sup_{f \in \cF}
+  t(\E_{q(\mbz)}[(O^{p,q} \, f)(\mbz)] - \E_{p(\mbz \g \mbx)}[(O^{p,p} \, f)(\mbz)]).
+\end{align*}
+In other words, operators with positive or negative expectations lead
+to Stein divergences with a more generalized notion of distance.
+
+\subsection{Langevin-Stein Operator Variational Objective}
+
+We developed the operator variational objective.  It is a class of
+tractable objectives, each of which can be optimized to yield an
+approximation to the posterior.  An operator variational objective is
+built from an operator, function class, and distance function to zero.
+We now use this construction to design a new type of variational
+objective.
+
+An operator objective involves a class of functions that has known
+expectations with respect to an intractable distribution.  There are
+many ways to construct such classes~\citep{Assaraf:1999,
+  Barbour:1988}.  Here, we construct an operator objective from the
+generator Stein's method applied to the Langevin diffusion.
+
+
+Let $\nabla^\top f$ denote the divergence of a vector-valued
+function $f$, that is, the sum of its individual gradients.
+Applying the generator method of~\citet{Barbour:1988} to Langevin diffusion
+gives the operator
+\begin{align}
+  (O^{p}_\textsc{ls} \, f)(\mbz) =  \nabla_z \log p(\mbx, \mbz)^\top f(\mbz) + \nabla^\top f.
+  \label{eq:lang-stein}
+\end{align}
+We call this the \gls{LS} operator.  We obtain the corresponding
+variational objective by using the squared distance function and
+substituting \Cref{eq:lang-stein} into~\Cref{eq:operator-obj},
+\begin{align}
+  \label{eq:lang-stein-objective}
+  \cL(q ; O^{p}_\textsc{ls}, \cF) = \sup_{f \in \mathcal{F}}
+  (\E_q[\nabla_z \log p(\mbx,
+  \mbz)^\top f(\mbz) + \nabla^\top f])^2.
+\end{align}
+The \gls{LS} operator satisfies both conditions.  First, it satisfies
+closeness because it has expectation zero under the posterior
+(Appendix A) and its unique minimizer is the posterior (Appendix B).
+Second, it is tractable because it requires only the joint
+distribution. The functions $f$ will also be a parametric family, which we
+detail later.
+
+Additionally, while the \gls{KL} divergence finds variational
+distributions that underestimate the variance, the \gls{LS} objective
+does not suffer from that pathology.  The reason is that \gls{KL} is
+infinite when the support of $q$ is larger than $p$; here this is not
+the case.
+
+
+We provided one example of a variational
+objectives using operators, which is specific to continuous variables. In
+general, operator objectives are not
+limited to continuous variables; Appendix C describes an operator for
+discrete variables.
+
+\subsection{The KL Divergence as an Operator Variational Objective}
+Finally, we demonstrate how classical variational methods fall inside
+the operator family.  For example, traditional variational inference
+minimizes the \gls{KL} divergence from an approximating family to the
+posterior~\citep{Jordan:1999}. This can be construed as an operator
+variational objective,
+\begin{align}
+  \label{eq:KL-operator}
+  (O^{p,q}_{\rm KL}  \,  f)(\mbz) = \log q(\mbz) - \log p(\mbz | \mbx)
+  \quad
+  \forall f\in\cF.
+\end{align}
+This operator does not use the family of functions---it trivially maps
+all functions $f$ to the same function. Further, because \gls{KL} is
+strictly positive, we use the identity distance $t(a) = a$.
+
+The operator satisfies both conditions.  It satisfies closeness
+because ${\rm KL}(p || p) = 0$.  It satisfies tractability because it
+can be computed up to a constant when used in the operator objective
+of \Cref{eq:operator-obj}.  Tractability comes from the fact that
+$\log p(\mbz \g \mbx) = \log p(\mbz, \mbx) - \log p(\mbx)$.
+
