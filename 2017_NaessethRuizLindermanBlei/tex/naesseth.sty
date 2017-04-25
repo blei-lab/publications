@@ -1,0 +1,125 @@
+\RequirePackage{color}
+\RequirePackage{amsmath, amssymb}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                            COMMANDS IN TEXT                                  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand\numtext[2]{#1\textsuperscript{#2}}
+\newcommand\thsnd[1]{\ensuremath{#1\thinspace000}}
+\newcommand{\peqref}[1]{\eqref{#1} on page~\pageref{#1}} % Page referencing for equations: "(1) on page 1"
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                            SPECIFIC MATH                                     %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Models etc.
+\newcommand{\n}{n}            % Number of samples in data record
+\newcommand{\parspace}{\Theta}                                   % Parameter space
+\newcommand{\parameter}{\theta}                                  % Parameter
+% SMC
+\newcommand{\Np}{N}           % Number of particles
+\newcommand{\Mp}{M}           % Number of particles in backward simulation
+% Spaces
+\newcommand{\setX}{\ensuremath{\mathsf{X}}}                      % State-space X
+\newcommand{\sigmaX}{\ensuremath{\mathcal{X}}}                   % Sigma algebra on X
+\newcommand{\setY}{\ensuremath{\mathsf{Y}}}                      % State-space Y
+\newcommand{\sigmaY}{\ensuremath{\mathcal{Y}}}                   % Sigma algebra on Y
+\newcommand{\setZ}{\ensuremath{\mathsf{Z}}}                      % State-space Z
+\newcommand{\sigmaZ}{\ensuremath{\mathcal{Z}}}                   % Sigma algebra on Z
+\newcommand{\setEps}{\ensuremath{\mathsf{E}}}          % State-space Eps
+
+% Variable notation
+\newcommand{\xk}[1]{x_{1:#1}}
+\newcommand{\yk}[1]{y_{1:#1}}
+% Graph notation
+\newcommand{\Ve}{\ensuremath{\mathcal{V}}}                      % Node set
+\newcommand{\Ed}{\ensuremath{\mathcal{E}}}                      % Edge set
+\newcommand{\Ne}{\ensuremath{\Gamma}}                           % Neighbor set
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                           GENERAL MATH                                       %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ======== Miscellaneous symbols ========
+\newcommand\eqdef{:=}
+\newcommand\defeq{=:}
+\newcommand{\iidsim}{\stackrel{\text{\iid}}{\sim}} % iid simulation
+\newcommand{\process}[1]{\{#1\}_{t\geq 1}}       % Process (time index t)
+\newcommand{\range}[2]{#1, \, \dots, \, #2}      % Range = 1, ..., N
+\newcommand{\crange}[2]{\{#1, \, \dots, \, #2\}} % Curly range = {1, ..., N}
+\newcommand{\prange}[2]{(#1, \, \dots, \, #2)}   % Parenthesised range = (1, ..., N)
+\newcommand{\bwdrange}[2]{#1 : -1 : #2}          % Range = N, ..., 1
+\newcommand{\approxpropto}{\stackrel{\sim}\propto}
+
+% Tight dots between \int and \int in a multidimensional integral
+\newcommand{\tightcdots}{\hspace*{-0.38em}\cdot\hspace*{-0.3em}\cdot\hspace*{-0.3em}\cdot\hspace*{-0.38em}}
+
+\newcommand{\myd}{\textrm{d}}      % Differential for integrals etc.
+
+% Arrows - convergence and mappings
+% \mapsto                                                     % Mappings, x \mapsto f(x)
+\newcommand{\fromto}{\rightarrow}                             % Mapping from set A to set B; f: A \fromto B
+\newcommand{\goesto}{\rightarrow}                             % limits used in n \goesto \infty
+\newcommand{\goestosmall}{\to}                                % limits used in \lim_{n \goestosmall \infty}
+\newcommand{\convP}{\stackrel{\probab}\longrightarrow}        % Convergence in probability
+\newcommand{\convD}{\stackrel{\textrm{D}}\longrightarrow}     % Convergence in distribution
+
+% ======== Standard spaces  ========
+\newcommand{\naturals}{\ensuremath{\mathbb{N}}}               % Natural numbers
+\newcommand{\reals}{\ensuremath{\mathbb{R}}}                  % Real numbers
+\newcommand{\nonnegatives}{\reals_{\smaller +}}               % Nonnegative numbers
+\newcommand{\positives}{\reals_{\smaller ++}}                 % Positive numbers
+\newcommand{\nonnegativedefinites}[1]{S_{\smaller +}(#1)}     % Nonnegative #1 x #1 matrices
+\newcommand{\positivedefinites}[1]{S_{++}(#1)}                % Positive #1 x #1 matrices
+
+% ======== Matrices ========
+\newcommand{\eye}[1]{I_{#1}}                     % Identity matrix
+\newcommand{\+}{\mathsf{T}}                      % Transpose
+\newcommand{\kronecker}{\raisebox{1pt}{\ensuremath{\otimes}}} % Kronecker product
+\DeclareMathOperator*\diag{diag}
+\DeclareMathOperator*\trace{tr}
+
+% ======== Operators, calculus etc. ========
+\newcommand{\Ordo}{O}                            % Big ordo
+\newcommand{\supnorm}[1]{\|#1\|_\infty}          % Supremum norm
+\newcommand\osc{\text{osc}}                      % Oscillator norm
+\newcommand{\grad}{\nabla}                       % Gradient
+\newcommand{\complementof}[1]{\ensuremath{#1^\mathsf{c}}} % Set complement
+\renewcommand\vec{\text{vec}}
+\DeclareMathOperator*\supp{supp}                          % Support
+\DeclareMathOperator*\card{card}                          % Set cardinality
+\DeclareMathOperator*\rank{rank}                          % Rank
+\DeclareMathOperator*\sign{sign}                          % Signum function
+\DeclareMathOperator*\argmax{arg\,max}
+\DeclareMathOperator*\argmin{arg\,min}
+
+% ======== Probability ========
+\newcommand{\Prb}{\ensuremath{\mathbb{P}}}                       % Probability
+\newcommand{\Ent}{\ensuremath{\mathbb{H}}} 
+\newcommand{\E}{\ensuremath{\mathbb{E}}}                         % Expectation
+\newcommand{\var}{\ensuremath{\operatorname{Var}}}                     % Variance
+\newcommand{\cov}{\ensuremath{\operatorname{Cov}}}                     % Covariance
+
+\newcommand{\abscont}{\ensuremath{\ll}}          % Absolute continuity
+\newcommand{\Mid}{\;\middle\vert\;}              % Stretchable \mid
+
+% Distributions
+\newcommand{\N}{\ensuremath{\mathcal{N}}}        % Normal
+\DeclareMathOperator*\tN{Truncated~\ensuremath{\mathcal{N}}}      % Truncated normal
+\newcommand{\uni}{\ensuremath{\mathcal{U}}}      % Uniform
+\newcommand\MN{\mathcal{MN}}                     % Matrix normal
+\newcommand\IW{\mathcal{IW}}                     % Inverse-Wishart
+\newcommand\GP{\mathcal{GP}}                     % Gaussian process
+\newcommand\po{\mathcal{P}}                      % Poisson
+\DeclareMathOperator*\Mult{Mult}                 % Multinomial
+\DeclareMathOperator*\cat{Cat}                   % Categorical
+\DeclareMathOperator*\Discrete{Discrete}         % Categorical/alternative name
+\DeclareMathOperator*\bin{Bin}                   % Binomial
+\DeclareMathOperator*\gam{Gamma}                 % Gamma
+\DeclareMathOperator*\expon{Exp}                 % Exponential
+\DeclareMathOperator*\St{St}                     % Student's t
+\DeclareMathOperator*\bet{Beta}                  % Beta
+\DeclareMathOperator*\diri{Dirichlet}            % Dirichlet
+\DeclareMathOperator*\mises{von Mises}           % Von Mises
+\DeclareMathOperator*\fdist{F}                   % F
+\DeclareMathOperator*\nakagami{Nakagami}         % Nakagami

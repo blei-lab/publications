@@ -1,0 +1,53 @@
+\documentclass[twoside]{article}% \usepackage{aistats2017}
+
+\input{preamble}
+\input{preamble_acronyms}
+% If your paper is accepted, change the options for the package
+% aistats2017 as follows:
+%
+\usepackage[accepted]{aistats2017}
+%
+% This option will print headings for the title of your paper and
+% headings for the authors names, plus a copyright note at the end of
+% the first column of the first page.
+
+
+\begin{document}
+
+% If your paper is accepted and the title of your paper is very long,
+% the style will print as headings an error message. Use the following
+% command to supply a shorter title of your paper so that it can be
+% used as headings.
+%
+%\runningtitle{I use this title instead because the last one was very long}
+
+% If your paper is accepted and the number of authors is large, the
+% style will print as headings an error message. Use the following
+% command to supply a shorter version of the authors names so that
+% they can be used as headings (for example, use only the surnames)
+%
+%\runningauthor{Surname 1, Surname 2, Surname 3, ...., Surname n}
+
+\twocolumn[
+
+\aistatstitle{Supplementary Material}
+
+\aistatsauthor{Christian A. Naesseth$^{\dagger\ddagger}$ \And Francisco J. R. Ruiz$^{\ddagger\S}$ \And Scott W. Linderman$^{\ddagger}$  \And David M. Blei$^{\ddagger}$}
+
+\aistatsaddress{$^\dagger$Link\"oping University~~$^\ddagger$Columbia University~~$^\S$University of Cambridge} ]
+
+% ======================================================================
+%                           Introduction
+% ======================================================================
+\input{supplementary}
+
+%\subsubsection*{References}
+
+\bibliographystyle{abbrvnat}
+\bibliography{refs}
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,35 @@
+%!TEX root = ./main.tex
+
+\section{Conclusions}
+\glsresetall
+
+We introduced \gls{RS-VI}, a method for deriving reparameterization
+gradients when simulation from the variational distribution is done
+using a acceptance-rejection sampler.  In practice, \gls{RS-VI} leads to
+lower-variance gradients than other state-of-the-art methods.
+Further, it enables reparameterization gradients for a large class of
+variational distributions, taking advantage of the efficient
+transformations developed in the rejection sampling literature.
+
+This work opens the door to other strategies that ``remove the lid''
+from existing black-box samplers in the service of variational
+inference.  As future work, we can consider more complicated
+simulation algorithms with accept-reject-like steps, such as adaptive
+rejection sampling, importance sampling, sequential Monte Carlo, or
+Markov chain Monte Carlo.
+
+% ? This is an intriguing question which we will have to leave for
+% future work.
+
+% Extendend space to do inference for more expressive models:
+% \citet{Salimans2015,TranNK2015,Tran2016,Maaloe2016,Ranganath2016,Moreno2016}?
+
+% Perhaps we could mention learning a mapping $h(\eps,\theta)$ online
+% like in normalizing flows as future work? Could we be able to apply
+% this more generally to perhaps MCMC methods with accept--reject
+% steps?
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:

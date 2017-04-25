@@ -1,0 +1,105 @@
+\documentclass[twoside]{article}% \usepackage{aistats2017}
+
+\input{preamble}
+\input{preamble_acronyms}
+% If your paper is accepted, change the options for the package
+% aistats2017 as follows:
+%
+\usepackage[accepted]{aistats2017}
+%
+% This option will print headings for the title of your paper and
+% headings for the authors names, plus a copyright note at the end of
+% the first column of the first page.
+
+
+\begin{document}
+
+% If your paper is accepted and the title of your paper is very long,
+% the style will print as headings an error message. Use the following
+% command to supply a shorter title of your paper so that it can be
+% used as headings.
+%
+%\runningtitle{I use this title instead because the last one was very long}
+
+% If your paper is accepted and the number of authors is large, the
+% style will print as headings an error message. Use the following
+% command to supply a shorter version of the authors names so that
+% they can be used as headings (for example, use only the surnames)
+%
+%\runningauthor{Surname 1, Surname 2, Surname 3, ...., Surname n}
+
+\twocolumn[
+
+\aistatstitle{Reparameterization Gradients through Acceptance-Rejection Sampling Algorithms}
+
+\aistatsauthor{Christian A. Naesseth$^{\dagger\ddagger}$ \And Francisco J. R. Ruiz$^{\ddagger\S}$ \And Scott W. Linderman$^{\ddagger}$  \And David M. Blei$^{\ddagger}$}
+
+\aistatsaddress{$^\dagger$Link\"oping University~~$^\ddagger$Columbia University~~$^\S$University of Cambridge} ]
+
+\begin{abstract}
+Variational inference using the reparameterization trick has enabled large-scale approximate Bayesian inference in complex probabilistic models, leveraging stochastic optimization to sidestep intractable expectations. 
+%Reparameterization of the variational approximation has allowed us to scale up these methods to very high-dimensional problems due to a significant variance reduction. 
+The reparameterization trick is applicable when we can simulate a random variable by applying a differentiable deterministic function on an auxiliary random variable whose distribution is fixed. For many distributions of interest (such as the gamma or Dirichlet), simulation of random variables relies on acceptance-rejection sampling. The discontinuity introduced by the accept--reject step means that standard reparameterization tricks are not applicable. We propose a new method that lets us leverage reparameterization gradients even when variables are outputs of a acceptance-rejection sampling algorithm. Our approach enables reparameterization on a larger class of variational distributions. In several studies of real and synthetic data, we show that the variance of the estimator of the gradient is significantly lower than other state-of-the-art methods. This leads to faster convergence of stochastic gradient variational inference.
+%These methods take advantage of random variables for which we can write the simulation as a deterministic function of parameters and random variables whose distribution is fix. However, many variables of interest, such as gamma and Dirichlet, do not allow for such a simple reparameterization because the simulation is done using a rejection sampler. We propose a new framework that lets us leverage reparameterization gradients even when variables are outputs of a rejection sampling algorithm. In experiments we show that the variance, and thus convergence time, is significantly reduced compared to other state-of-the-art methods. Not only is convergence faster, but the framework also allows us to consider a much larger class of variational approximations than ever before.
+\end{abstract}
+
+
+% ======================================================================
+%                           Introduction
+% ======================================================================
+\input{sec-introduction}
+
+% ======================================================================
+%                        Background
+% ======================================================================
+\input{sec-background}
+
+
+% ======================================================================
+%                         Method & Theory
+% ======================================================================
+\input{sec-method}
+
+% ======================================================================
+%                             Related Work
+% ======================================================================
+\input{sec-relatedwork}
+
+
+% ======================================================================
+%                         Examples
+% ======================================================================
+\input{sec-examples}
+
+
+% ======================================================================
+%                           Experiments
+% ======================================================================
+\input{sec-experiments}
+
+
+% ======================================================================
+%                           Conclusions
+% ======================================================================
+
+\input{sec-conclusions}
+
+% ======================================================================
+%                           Acknowledgements
+% ======================================================================
+\subsubsection*{Acknowledgements}
+Christian A.\ Naesseth is supported by CADICS, a Linnaeus Center, funded by the Swedish Research Council (VR). Francisco J.\ R.\ Ruiz is supported by the EU H2020 programme (Marie Sk\l{}odowska-Curie grant agreement 706760). Scott W. Linderman is supported by the Simons Foundation SCGB-418011.
+This work is supported by NSF IIS-1247664, ONR N00014-11-1-0651, DARPA
+PPAML FA8750-14-2-0009, DARPA SIMPLEX N66001-15-C-4032, Adobe, and the
+Alfred P. Sloan Foundation. The authors would like to thank Alp Kucukelbir and Dustin Tran for helpful comments and discussion.
+
+%\subsubsection*{References}
+
+\bibliographystyle{abbrvnat}
+\bibliography{refs}
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,159 @@
+%\section{Supplementary Material}
+\section{Distribution of $\eps$}
+Here we formalize the claim in the main manuscript regarding the distribution of the accepted variable $\eps$ in the rejection sampler. Recall that ${z=h(\eps,\theta), ~\eps \sim s(\eps)}$ is equivalent to $z\sim r(z\g\theta)$, and that $q(z\g\theta) \leq M_\theta r(z\g\theta)$. For simplicity we consider the univariate continuous case in the exposition below, but the result also holds for the discrete and multivariate settings. The cumulative distribution function for the accepted $\eps$ is given by
+\begin{align*}
+\begin{split}
+&\Prb(E \leq \eps) = \sum_{i=1}^\infty \Prb(E \leq \eps, E = E_i)\\
+&= \sum_{i=1}^\infty \Bigg[ \Prb\left(E_i \leq \eps, U_i < \frac{q(h(E_i,\theta)\g\theta)}{M_\theta r(h(E_i,\theta)\g\theta)}\right)\\
+&\quad\prod_{j=1}^{i-1} \Prb\left(U_j \geq \frac{q(h(E_j,\theta)\g\theta)}{M_\theta r(h(E_j,\theta)\g\theta)}\right)\Bigg] \\
+&= \sum_{i=1}^\infty \int_{-\infty}^\eps s(e) \frac{q(h(e,\theta)\g\theta)}{M_\theta r(h(e,\theta)\g\theta)} \myd e \prod_{j=1}^{i-1} \left(1-\frac{1}{M_\theta}\right)\\
+&= \int_{-\infty}^\eps s(e) \frac{q(h(e,\theta)\g\theta)}{r(h(e,\theta)\g\theta)} \myd e \cdot \frac{1}{M_\theta} \cdot \sum_{i=1}^\infty  \left(1-\frac{1}{M_\theta}\right)^{i-1}\\
+&= \int_{-\infty}^\eps s(e) \frac{q(h(e,\theta)\g\theta)}{r(h(e,\theta)\g\theta)}\myd e.
+\end{split}
+\end{align*}
+Here, we have applied that ${z=h(\eps,\theta), ~\eps \sim s(\eps)}$ is a reparameterization of $z\sim r(z\g\theta)$, and thus
+\begin{align*}
+\begin{split}
+& \Prb\left(U_j \geq \frac{q(h(E_j,\theta)\g\theta)}{M_\theta r(h(E_j,\theta)\g\theta)}\right) \\
+& = \int_{-\infty}^{\infty} s(e)\left( 1- \frac{q(h(e,\theta)\g\theta)}{M_\theta r(h(e,\theta)\g\theta)}\right) \myd e \\
+& = 1-\frac{1}{M_\theta}\E_{s(e)}\left[ \frac{q(h(e,\theta)\g\theta)}{r(h(e,\theta)\g\theta)}\right] \\
+& = 1-\frac{1}{M_\theta}\E_{r(z\g \theta)} \left[ \frac{q(z\g\theta)}{r(z\g\theta)} \right] = 1-\frac{1}{M_\theta}.
+\end{split}
+\end{align*}
+
+The density is obtained by taking the derivative of the cumulative distribution function with respect to $\eps$,
+\begin{align*}
+\frac{\myd }{\myd \eps} \Prb(E \leq \eps) =  s(\eps) \frac{q(h(\eps,\theta)\g\theta)}{r(h(\eps,\theta)\g\theta)},
+\end{align*}
+which is the expression from the main manuscript.
+
+The motivation from the main manuscript is basically a standard ``area-under-the-curve'' or geometric argument for rejection sampling \citep{robert2004monte}, but for $\eps$ instead of $z$.
+
+
+\section{Derivation of the Gradient}\label{sec:gradient}
+We provide below details for the derivation of the gradient. We assume that $h$ is differentiable (almost everywhere) with respect to $\theta$, and that ${f(h(\eps,\theta))\frac{q(h(\eps,\theta)\g\theta)}{r(h(\eps,\theta)\g\theta)}}$ is continuous in $\theta$ for all $\eps$. Then, we have
+\begin{align*}
+\begin{split}
+&\grad_\theta \E_{q(z\g \theta)}[f(z)] = \grad_\theta \E_{\pi(\eps\g\theta)}[f(h(\eps,\theta))] \\
+&= \int s(\eps) \grad_\theta \left( f\left(h(\eps,\theta)\right)  \frac{q\left(h(\eps,\theta)\g \theta\right)}{r\left(h(\eps,\theta)\g \theta\right)}  \right) \myd \eps\\
+&= \int s(\eps)  \frac{q\left(h(\eps,\theta)\g \theta\right)}{r\left(h(\eps,\theta)\g \theta\right)}  \grad_\theta f\left(h(\eps,\theta)\right)  \myd \eps\\
+&+ \int s(\eps) f\left(h(\eps,\theta)\right)  \grad_\theta \left( \frac{q\left(h(\eps,\theta)\g \theta\right)}{r\left(h(\eps,\theta)\g \theta\right)} \right) \myd \eps\\
+&= \underbrace{\E_{\pi(\eps\g\theta)}[\grad_\theta f(h(\eps,\theta))]}_{\defeq g_{\text{rep}}}+ \\
+&\quad + \underbrace{\E_{\pi(\eps\g\theta)}\left[ f(h(\eps,\theta)) \grad_\theta  \log \frac{q(h(\eps,\theta)\g \theta)}{r(h(\eps,\theta)\g \theta)} \right]}_{\defeq g_{\text{cor}}},
+\end{split}
+\end{align*}
+where in the last step we have identified $\pi(\eps\g\theta)$ and made use of the log-derivative trick
+\begin{align*}
+ \grad_\theta \frac{q\left(h(\eps,\theta)\g \theta\right)}{r\left(h(\eps,\theta)\g \theta\right)} = \frac{q\left(h(\eps,\theta)\g \theta\right)}{r\left(h(\eps,\theta)\g \theta\right)} \grad_\theta \log \frac{q\left(h(\eps,\theta)\g \theta\right)}{r\left(h(\eps,\theta)\g \theta\right)}.
+\end{align*}
+
+\paragraph{Gradient of Log-Ratio in $g_{\text{cor}}$}
+For invertible reparameterizations we can simplify the evaluation of the gradient of the log-ratio in $g_{\text{cor}}$ as follows using standard results on transformation of a random variable
+\begin{align*}
+&\grad_\theta  \log \frac{q(h(\eps,\theta)\g \theta)}{r(h(\eps,\theta)\g \theta)}  = \grad_\theta  \log q(h(\eps,\theta)\g \theta) +\nonumber\\
+& +\grad_\theta \log \left| \frac{d h}{d\eps}(\eps,\theta) \right|- \grad_\theta \log \underbrace{s(h^{-1}(h(\eps,\theta),\theta))}_{= ~s(\eps)}\\
+&=\grad_\theta  \log q(h(\eps,\theta)\g \theta) + \grad_\theta \log \left| \frac{d h}{d\eps}(\eps,\theta) \right|.
+\end{align*}
+%\begin{figure*}[t]
+  %\centering
+  %\includegraphics[width=2.\columnwidth]{compare_Qeps} 
+  %\caption{Corresponding distribution on $\eps$ for $\alpha = \{1,2,10\}$. We show the transformation suggested by \citet{RuizTB2016}, \gls{G-REP}, and ours inspired by the rejection sampler.}
+  %\label{fig:compare_qeps}
+%\end{figure*}
+
+%\begin{landscape}
+
+
+\renewcommand{\arraystretch}{2.5}
+\begin{table*}[t]
+\centering
+\begin{tabular}{ccc} 
+\toprule
+$q(z\g\theta)$ & $h(\eps,\theta)$ & $s(\eps)$\\
+\hline
+% GAMMA
+$\gam(\alpha,1)$ &$\left(\alpha-\frac{1}{3}\right) \left(1+\frac{\eps}{\sqrt{9\alpha-3}}\right)^3$ & $\eps\sim\N(0,1)$\\
+% Truncated Noraml
+$\tN(0,1,a,\infty)$ & $\sqrt{a^2-2\log \eps}$ & $\eps \sim \uni[0,1]$\\
+% VON MISES
+$\mises(\kappa)$ & $\frac{\sign(\eps)}{\cos\left( \frac{1+c\cos(\pi \eps)}{c+\cos(\pi\eps)} \right)}$, $c = \frac{1+\rho^2}{2\rho}$, $\rho = \frac{r-\sqrt{2r}}{2\kappa}$, $r = 1+\sqrt{1+4\kappa^2}$ & $\eps \sim \uni[-1,1]$ \\ \bottomrule
+\end{tabular}
+\caption{Examples of reparameterizable rejection samplers; many more can be found in \citet{devroye1986}. The first column is the distribution, the second column is the transformation $h(\eps,\theta)$, and the last column is the proposal $s(\eps)$.\label{tab:rep_rejsamplers}}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\begin{tabular}{ccc}
+\toprule
+$q(z\g\theta)$ & $g(\tilde z, \theta)$ &  $p(\tilde z\g\theta)$\\
+\hline
+% BETA
+$\bet(\alpha,\beta)$ & $\displaystyle\frac{\tilde z_1}{\tilde z_1 + \tilde z_2}$ & $\tilde z_1 \sim \gam(\alpha,1)$, $\tilde z_2  \sim \gam(\beta,1)$\\%$\frac{\left(\alpha-\frac{1}{3}\right) \left(1+\frac{\eps_1}{\sqrt{9\alpha-3}}\right)^3}{\left(\alpha-\frac{1}{3}\right) \left(1+\frac{\eps_1}{\sqrt{9\alpha-3}}\right)^3+\left(\beta-\frac{1}{3}\right) \left(1+\frac{\eps_2}{\sqrt{9\beta-3}}\right)^3}$\\
+% DIRICHLET
+$\diri(\alpha_{1:K})$ &$\displaystyle\frac{1}{\sum_\ell \tilde z_\ell} \left(\tilde z_1,\ldots,\tilde z_K\right)^\top$ & $\tilde z_k \sim \gam(\alpha_k,1), ~k=1,\ldots,K$\\
+% STUDENT'S T 
+$\St(\nu)$ & $\displaystyle\sqrt{\frac{\nu}{2 \tilde z_1}} \tilde z_2$ & $\tilde z_1 \sim \gam(\nu/2,1)$, $\tilde z_2 \sim \N(0,1)$\\
+% CHI SQUARED
+$\chi^2(k)$ & $\displaystyle2\tilde z$& $\tilde z \sim \gam(k/2,1)$\\
+% F
+$\fdist(d_1,d_2)$ & $\displaystyle\frac{d_2 \tilde z_1}{d_1 \tilde z_2}$ & $\tilde z_1 \sim \gam(d_1/2,1)$, $\tilde z_2  \sim \gam(d_2/2,1)$\\
+% NAKAGAMI
+$\nakagami(m,\Omega)$ & $\displaystyle \sqrt{\frac{\Omega\tilde z}{m}}$ & $\tilde z \sim \gam(m,1)$ \\ \bottomrule
+\end{tabular}
+\caption{Examples of random variables as functions of auxiliary random variables with reparameterizable distributions. The first column is the distribution, the second column is a function $g(\tilde{z},\theta)$ mapping from the auxiliary variables to the desired variable, and the last column is the distribution of the auxiliary variables $\tilde z$.\label{tab:aux_rejSamplers}}
+\end{table*}
+%\end{landscape}
+
+\section{Examples of Reparameterizable Rejection Samplers}
+
+We show in Table~\ref{tab:rep_rejsamplers} some examples of reparameterizable rejection samplers for three distributions, namely, the gamma, the truncated normal, and the von Misses distributions (for more examples, see \citet{devroye1986}). We show the distribution $q(z\g \theta)$, the transformation $h(\eps,\theta)$, and the proposal $s(\eps)$ used in the rejection sampler.
+
+We show in Table~\ref{tab:aux_rejSamplers} six examples of distributions that can be reparameterized in terms of auxiliary gamma-distributed random variables. We show the distribution $q(z\g\theta)$, the distribution of the auxiliary gamma random variables $p(\tilde{z}\g\theta)$, and the mapping $z=g(\tilde{z},\theta)$.
+
+
+%\begin{landscape}
+%\renewcommand{\arraystretch}{2.5}
+%\begin{table}[h]
+%\centering
+%\caption{Examples of reperameterizable rejection samplers. First column distribution with parameter, second column is function $h$, third column is internal rejection proposal for $\eps$, last column denotes the rejection sampler to be used when generating $\eps$, respectively.}
+%\begin{tabular}{c | c | c | c}
+%$q(z|\theta)$ & $h(\eps,\theta)$ & $s(\eps)$ & Rejection Sampler\\
+%\hline
+%% GAMMA
+%$\gam(\alpha,1)$ &$\left(\alpha-\frac{1}{3}\right) \left(1+\frac{\eps}{\sqrt{9\alpha-3}}\right)^3$ & $\eps\sim\N(0,1)$ & $\gam(\alpha,1)$\\
+%% BETA
+%$\bet(\alpha,\beta)$ &$\frac{\left(\alpha-\frac{1}{3}\right) \left(1+\frac{\eps_1}{\sqrt{9\alpha-3}}\right)^3}{\left(\alpha-\frac{1}{3}\right) \left(1+\frac{\eps_1}{\sqrt{9\alpha-3}}\right)^3+\left(\beta-\frac{1}{3}\right) \left(1+\frac{\eps_2}{\sqrt{9\beta-3}}\right)^3}$ & $\eps_1\sim\N(0,1),~\eps_2\sim\N(0,1)$ & $\gam(\alpha,1), \gam(\beta,1)$\\
+%% DIRICHLET
+%$\diri(\alpha_{1:K})$ &$ \frac{\left(\left(\alpha_1-\frac{1}{3}\right) \left(1+\frac{\eps_1}{\sqrt{9\alpha_1-3}}\right)^3,\ldots,\left(\alpha_K-\frac{1}{3}\right) \left(1+\frac{\eps_K}{\sqrt{9\alpha_K-3}}\right)^3\right)^\top}{\sum_\ell \left(\alpha_\ell-\frac{1}{3}\right) \left(1+\frac{\eps_\ell}{\sqrt{9\alpha_\ell-3}}\right)^3}  $ & $\eps_k\iidsim\N(0,1),~k=1,\ldots,K$ & $\gam(\alpha_k,1)$\\
+%% STUDENT'S T 
+%$\St(\nu)$ & $e \sqrt{\nu} \left(2\left(\frac{\nu}{2}-\frac{1}{3}\right) \left(1+\frac{\eps}{\sqrt{9\frac{\nu}{2}-3}}\right)^3\right)^{-1/2} $, $e\sim \N(0,1)$ & $\eps\sim\N(0,1)$ & $\gam(\nu/2,1)$\\
+%% F
+%$\fdist(d_1,d_2)$ & $\frac{d_2 \left(\frac{d_1}{2}-\frac{1}{3}\right) \left(1+\frac{\eps_1}{\sqrt{9\frac{d_1}{2}-3}}\right)^3}{d_1 \left(\frac{d_2}{2}-\frac{1}{3}\right) \left(1+\frac{\eps_2}{\sqrt{9\frac{d_2}{2}-3}}\right)^3}$ & $\eps_1\sim\N(0,1),~\eps_2\sim\N(0,1)$ & $\gam(\frac{d_1}{2},1), \gam(\frac{d_2}{2},1)$\\
+%% VON MISES
+%$\mises(\kappa)$ & $\frac{\sign(\eps)}{\cos\left( \frac{1+c\cos(\pi \eps)}{c+\cos(\pi\eps)} \right)}$, $c = \frac{1+\rho^2}{2\rho}$, $\rho = \frac{r-\sqrt{2r}}{2\kappa}$, $r = 1+\sqrt{1+4\kappa^2}$ & $\eps \sim \uni[-1,1]$ & $\mises(\kappa)$
+%\end{tabular}
+%\end{table}
+%\end{landscape}
+
+\section{Reparameterizing the Gamma Distribution}
+We provide details on reparameterization of the gamma distribution. In the following we consider rate $\beta=1$. Note that this is not a restriction, we can always reparameterize the rate. The density of the gamma random variable is given by
+\begin{align*}
+q(z\g\alpha) &= \frac{z^{\alpha-1} e^{-z}}{\Gamma(\alpha)},
+\end{align*}
+where $\Gamma(\alpha)$ is the gamma function. We make use of the reparameterization defined by
+\begin{align*}
+z &= h(\eps,\alpha) = \left(\alpha-\frac{1}{3}\right)\left(1+\frac{\eps}{\sqrt{9\alpha-3}}\right)^3,\\
+\eps &\sim \N(0,1).
+\end{align*}
+Because $h$ is invertible we can make use of the simplified gradient of the log-ratio derived in Section~\ref{sec:gradient} above. The gradients of $\log q$ and $-\log r$ are given by
+\begin{align*}
+&\grad_\alpha  \log q(h(\eps,\alpha)\g \alpha) \\
+&= \log (h(\eps,\alpha)) + (\alpha-1) \frac{\frac{d h(\eps,\alpha)}{d\alpha}}{h(\eps,\alpha)} -\frac{d h(\eps,\alpha)}{d\alpha} -\psi(\alpha),\\
+&\grad_\alpha - \log r(h(\eps,\alpha)\g\alpha) = \grad_\alpha \log \left| \frac{d h}{d\eps}(\eps,\alpha) \right| \\
+&= \frac{1}{2\left(\alpha-\frac{1}{3}\right)} - \frac{9 \eps}{\left(1+\frac{\eps}{\sqrt{9\alpha-3}}\right)\left(9\alpha-3\right)^{\frac{3}{2}}},
+\end{align*}
+where $\psi(\alpha)$ is the digamma function and
+\begin{align*}
+&\frac{d h(\eps,\alpha)}{d\alpha} \\
+&= \left(1+\frac{\eps}{\sqrt{9\alpha-3}}\right)^3 - \frac{27 \eps}{2(9\alpha-3)^{\frac{3}{2}}}\left(1+\frac{\eps}{\sqrt{9\alpha-3}}\right)^2.
+\end{align*}

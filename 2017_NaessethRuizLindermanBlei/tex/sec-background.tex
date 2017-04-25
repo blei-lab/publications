@@ -1,0 +1,42 @@
+%!TEX root = main.tex
+
+% ======================================================================
+%   VARIATIONAL INFERENCE
+% ======================================================================
+\section{Variational Inference}\label{sec:background}
+Let $p(x,z)$ be a probabilistic model, \ie, a joint probability distribution of \emph{data} $x$ and \emph{latent} (unobserved) variables $z$. In Bayesian inference, we are interested in the posterior distribution $p(z|x) = \frac{p(x,z)}{p(x)}$. For most models, the posterior distribution is analytically intractable and we have to use an approximation, such as Monte Carlo methods or variational inference. In this paper, we focus on variational inference.%, which is typically faster and can scale to handle massive datasets and high dimensionality of $z$.
+
+In variational inference, we approximate the posterior with a \emph{variational family} of distributions $q(z\g\theta)$, parameterized by $\theta$. Typically, we choose the \emph{variational parameters} $\theta$ that minimize the \gls{KL} divergence between $q(z\g\theta)$ and $p(z | x)$. This minimization is equivalent to maximizing the \gls{ELBO} \citep{Jordan1999}, defined as
+\begin{align}
+\begin{split}
+\Lo(\theta) &= \E_{q(z\g \theta)}\left[f(z)\right] + \Ent[q(z\g \theta)],\\
+f(z) & \eqdef \log p(x,z), \\
+\quad\Ent[q(z\g \theta)] & \eqdef \E_{q(z\g \theta)}[- \log q(z\g \theta)].
+\end{split}\label{eq:elbo}
+\end{align}
+When the model and variational family satisfy conjugacy requirements, we can use coordinate ascent to find a local optimum of the \gls{ELBO} \citep{BleiAlp2016}. If the conjugacy requirements are not satisfied, a common approach is to build a Monte Carlo estimator of the gradient of the \gls{ELBO} \citep{Paisley2012,Ranganath2014,Mnih2014,Salimans2013,Kingma2014}. This results in a stochastic optimization procedure, where different Monte Carlo estimators of the gradient amount to different algorithms. We review below two common estimators: the score function estimator and the reparameterization trick.%
+\footnote{In this paper, we assume for simplicity that the gradient of the entropy $\grad_\theta \Ent[q(z\g \theta)]$ is available analytically. The method that we propose in Section~\ref{sec:method} can be easily extended to handle non-analytical entropy terms. Indeed, the resulting estimator of the gradient may have lower variance when the analytic gradient of the entropy is replaced by its Monte Carlo estimate. Here we do not explore that.}
+
+\parhead{Score function estimator.}
+The score function estimator, also known as the log-derivative trick or \textsc{reinforce} \citep{Williams1992,Glynn1990}, is a general way to estimate the gradient of the \gls{ELBO} \citep{Paisley2012,Ranganath2014,Mnih2014}. The score function estimator expresses the gradient as an expectation with respect to $q(z\g\theta)$:
+\begin{align*}
+\grad_\theta \Lo(\theta) = \E_{q(z\g\theta)}[ f(z) \grad_\theta \log q(z\g\theta)] + \grad_\theta \Ent[q(z\g \theta)].
+\end{align*}
+We then form Monte Carlo estimates by approximating the expectation with independent samples from the variational distribution. Though it is very general, the score function estimator typically suffers from high variance. In practice we also need to apply variance reduction techniques such as Rao-Blackwellization \citep{Casella1996} and control variates \citep{robert2004monte}.
+%\cn{Is there a specific reason for the reference to Ross 2002?}
+
+\parhead{Reparameterization trick.}
+The reparameterization trick \citep{Salimans2013,Kingma2014,Price1958,Bonnet1964} results in a lower variance estimator compared to the score function, but it is not as generally applicable. It requires that: (i) the latent variables $z$ are continuous; and (ii) we can simulate from $q(z\g\theta)$ as follows, %the simulation of random variables from $q(z\g \theta)$ can be written as a mapping
+\begin{align}
+z = h(\eps,\theta),\qquad \textrm{with } \eps \sim s(\eps).
+\label{eq:mapping}
+\end{align}
+Here, $s(\eps)$ is a distribution that does not depend on the variational parameters; it is typically a standard normal or a standard uniform. Further, $h(\eps,\theta)$ must be differentiable with respect to $\theta$. In statistics, this is known as a non-central parameterization and has been shown to be helpful in, \eg, Markov chain Monte Carlo methods \citep{bernardo2003non}.
+
+Using \eqref{eq:mapping}, we can move the derivative inside the expectation and rewrite the gradient of the \gls{ELBO} as
+\begin{align*}
+%&\grad_\theta \Lo(\theta) = \E_{ s(\eps) }\left[\grad_z f(z) \Big|_{z=h(\eps,\theta)} \grad_\theta h(\eps,\theta)\right] + \grad_\theta \Ent[q(z\g \theta)].
+&\grad_\theta \Lo(\theta) = \E_{ s(\eps) }\left[\grad_z f(h(\eps,\theta)) \grad_\theta h(\eps,\theta)\right] + \grad_\theta \Ent[q(z\g \theta)].
+\end{align*}
+Empirically, the reparameterization trick has been shown to be beneficial over direct Monte Carlo estimation of the gradient using the score fuction estimator \citep{Salimans2013,Kingma2014,Titsias2014_doubly,Fan2015}. Unfortunately, many distributions commonly used in variational inference, such as gamma or Dirichlet, are not amenable to standard reparameterization because samples are generated using a rejection sampler \citep{vonneumann:51,robert2004monte}, introducing discontinuities to the mapping. We next show that taking a novel view of the acceptance-rejection sampler lets us perform exact reparameterization.
+

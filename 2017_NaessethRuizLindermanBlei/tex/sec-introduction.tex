@@ -1,0 +1,116 @@
+%!TEX root = main.tex
+
+\section{Introduction}\label{sec:introduction}
+
+% world as it is : MC estimates of variational objective are useful
+% for nonconjugate models. there are two types score-gradients (high
+% variance) and reparameterization gradients (not general)
+Variational inference~\citep{hinton1993,Waterhouse96,Jordan1999}
+underlies many recent advances in large scale probabilistic modeling.
+It has enabled sophisticated modeling of complex domains such as
+images~\citep{Kingma2014} and text~\citep{Hoffman2013}. By definition,
+the success of variational approaches depends on our ability to
+\begin{enumerate*}[label=(\roman*)]
+\item formulate a flexible parametric family of distributions; and
+\item optimize the parameters to find the member of this family that
+  most closely approximates the true posterior.
+\end{enumerate*}
+These two criteria are at odds---the more flexible the family, the
+more challenging the optimization problem.  In this paper, we present
+a novel method that enables more efficient optimization for a large
+class of variational distributions, namely, for distributions that we
+can efficiently simulate by acceptance-rejection sampling, or rejection sampling for short.
+
+For complex models, the variational parameters can be optimized
+by stochastic gradient ascent on the \gls{ELBO}, a lower bound on the 
+marginal likelihood of the data.
+There are two primary means of estimating the gradient of the \gls{ELBO}:
+the score function estimator \citep{Paisley2012,Ranganath2014,Mnih2014} and the
+reparameterization trick \citep{Kingma2014,Rezende2014,Price1958, Bonnet1964}, both of which rely on Monte Carlo sampling.  While the
+reparameterization trick often yields lower variance estimates and
+therefore leads to more efficient optimization, this approach has been
+limited in scope to a few variational families (typically Gaussians).
+Indeed, some lines of research have already tried to address this 
+limitation \citep{Knowles2015,RuizTB2016}.
+
+There are two requirements to apply the reparameterization trick.  The
+first is that the random variable can be obtained through a
+transformation of a simple random variable, such as a uniform or
+standard normal; the second is that the transformation be
+differentiable.  In this paper, we observe that all random variables
+we simulate on our computers are ultimately transformations of
+uniforms, often followed by accept-reject steps.  So if the
+transformations are differentiable then we can use these existing simulation
+algorithms to expand the scope of the reparameterization trick.
+
+Thus, we show how to use existing rejection samplers to develop
+stochastic gradients of variational parameters.  In short, each
+rejection sampler uses a highly-tuned transformation that is
+well-suited for its distribution.  We can construct new
+reparameterization gradients by ``removing the lid'' from these black
+boxes, applying $65+$ years of research on
+transformations~\citep{vonneumann:51, devroye1986} to variational
+inference. We demonstrate that this broadens the scope of variational
+models amenable to efficient inference and provides lower-variance
+estimates of the gradient compared to state-of-the-art approaches.
+
+We first review variational inference, with a focus on stochastic
+gradient methods. We then present our key contribution, \gls{RS-VI},
+showing how to use efficient rejection samplers to produce
+low-variance stochastic gradients of the variational objective.  We
+study two concrete examples, analyzing rejection samplers for the
+gamma and Dirichlet to produce new reparameterization gradients for
+their corresponding variational factors. Finally, we analyze two
+datasets with a \gls{DEF}~\citep{Ranganath2015}, comparing \gls{RS-VI}
+to the state of the art.  We found that \gls{RS-VI} achieves a
+significant reduction in variance and faster convergence of the
+\gls{ELBO}. 
+Code for all experiments is provided at
+\url{github.com/blei-lab/ars-reparameterization}.
+
+%for both image and text datasets.
+
+% % Then one day: we are going to show how to use the mathematical
+% % details of rejection sampling to define more general
+% % reparameterization gradients.  the idea is...
+% Ultimately, the only requirement of the reparameterization
+% trick is that the random variable be given by a 
+% differentiable transformation of a simple random variable, like 
+% uniforms and standard normals. Since every random variable we
+% simulate on our computers is ultimately a transformation of uniforms,
+% the first constraint is trivial; the only real constraint is the
+% differentiability of this transformation.
+% % Raising the stakes: with this idea, we can use reparameterization
+% % gradients in settings where only score gradients used to apply.  this
+% % expands the class of models possible with efficient VI.
+% We apply this line of reasoning to rejection samplers and find that,
+% while some care must be taken, by
+% removing the lid on these ``black box'' sampling
+% algorithms, we can derive low-variance reparameterization gradients
+% for challenging variational distributions.%, such as gamma or Dirichlet.
+
+% % the world now: we studied this new method.  our experiments showed
+% % that ...
+% In rejection sampling, there exist efficient transformations which are
+% well suited for each specific distribution. Our approach allows us to
+% leverage $65+$ years of research on transformations in the rejection
+% sampling literature \citep{devroye1986}, and apply those to variational
+% inference. This broadens the scope of variational models amenable
+% to efficient inference, and also provides lower-variance estimates of the
+% gradient compared to state-of-the-art approaches.
+
+
+% These developments immediately yield efficient gradient
+% estimators for a number of previously intractable variational
+% distributions like the gamma distribution. Moreover,
+% from gamma random variates we can derive beta and Dirichlet random
+% variables as well. In a variety of experiments, we show how these
+% novel techniques broaden the scope of models amenable to efficient
+% variational inference.
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:
